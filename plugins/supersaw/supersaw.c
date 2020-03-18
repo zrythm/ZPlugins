@@ -178,17 +178,15 @@ activate (
   srand (time (NULL));
   for (int i = 0; i < 128; i++)
     {
-      MidiKey key = self->keys[i];
-      sp_create (&key.sp);
-      sp_blsaw_create (&key.blsaw);
-      sp_blsaw_init (key.sp, key.blsaw);
-      sp_adsr_create (&key.adsr);
-      sp_adsr_init (key.sp, key.adsr);
-      key.blsaw->freq = (float *) 400;
-      key.blsaw->amp = (float *) 1;
-      key.sp->len =
-        (long unsigned)
-        self->common.samplerate * 5;
+      MidiKey * key = &self->keys[i];
+      sp_create (&key->sp);
+      sp_blsaw_create (&key->blsaw);
+      sp_blsaw_init (key->sp, key->blsaw);
+      sp_adsr_create (&key->adsr);
+      sp_adsr_init (key->sp, key->adsr);
+      *key->blsaw->freq =
+        440.f * powf (2.f, ((float) i - 49.f) / 12.f);
+      *key->blsaw->amp = 0.3f;
     }
 }
 
@@ -200,14 +198,18 @@ process (
   SuperSaw * self,
   uint32_t * offset)
 {
+  self->stereo_out_l[*offset] = 0.f;
+  self->stereo_out_r[*offset] = 0.f;
+
   for (int i = 0; i < 128; i++)
     {
-      MidiKey key = self->keys[i];
-      if (key.phase == PHASE_OFF)
+      MidiKey * key = &self->keys[i];
+      /*float val = 0.f;*/
+#if 0
+      if (key->phase == PHASE_OFF)
         continue;
 
-      float val = 0.f;
-      switch (key.phase)
+      switch (key->phase)
         {
         case PHASE_ATTACK:
         case PHASE_DECAY:
@@ -217,9 +219,19 @@ process (
         default:
           break;
         }
+#endif
 
-      self->stereo_out_l[*offset] += val;
-      self->stereo_out_r[*offset] += val;
+      if (key->pressed)
+        {
+          key->sp->len = 4800 * 4;
+          sp_blsaw_compute (
+            key->sp, key->blsaw, NULL, &key->sp->out[0]);
+          key->offset =
+            (key->offset + 1) % (size_t) self->common.samplerate;
+
+          self->stereo_out_l[*offset] += key->sp->out[0];
+          self->stereo_out_r[*offset] += key->sp->out[0];
+        }
     }
   (*offset)++;
 }
@@ -247,10 +259,12 @@ run (
             case LV2_MIDI_MSG_NOTE_ON:
               printf ("note on at %ld: %u (vel %u)\n",
                 ev->time.frames, msg[1], msg[2]);
+              self->keys[msg[1]].pressed = 1;
               break;
             case LV2_MIDI_MSG_NOTE_OFF:
               printf ("note off at %ld: %u\n",
                 ev->time.frames, msg[1]);
+              self->keys[msg[1]].pressed = 0;
               break;
             default:
               printf ("unknown MIDI message\n");
