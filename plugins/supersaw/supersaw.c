@@ -38,10 +38,14 @@ typedef struct MidiKey
   /** How many samples we are into the phase. */
   size_t        offset;
 
+  /** Velocity. */
+  int           vel;
+
   sp_adsr *     adsr;
-  sp_saturator * saturator;
   sp_blsaw *    blsaws[7];
-  sp_data *     sp;
+
+  /** Last signal known. */
+  float         last_adsr;
 } MidiKey;
 
 /**
@@ -70,7 +74,12 @@ typedef struct SuperSaw
   float         decay;
   float         sustain;
   float         release;
-  int           num_voices;
+  /*int           num_voices;*/
+
+  sp_saturator * saturator;
+  sp_dist *     distortion;
+  sp_zitarev *  reverb;
+  sp_data *     sp;
 
   SuperSawCommon common;
 } SuperSaw;
@@ -163,16 +172,16 @@ activate (
     {
       MidiKey * key = &self->keys[i];
 
-      sp_create (&key->sp);
-      key->sp->len = 4800 * 6;
+      sp_create (&self->sp);
+      self->sp->len = 4800 * 6;
 
       /* create 7 saws */
       for (int j = 0; j < 7; j++)
         {
-          sp_create (&key->sp);
-          key->sp->len = 4800 * 60;
+          sp_create (&self->sp);
+          self->sp->len = 4800 * 60;
           sp_blsaw_create (&key->blsaws[j]);
-          sp_blsaw_init (key->sp, key->blsaws[j]);
+          sp_blsaw_init (self->sp, key->blsaws[j]);
           float freq =
             440.f * powf (2.f, ((float) i - 69.f) / 12.f);
           *key->blsaws[j]->freq = freq;
@@ -180,7 +189,7 @@ activate (
 #define COMPUTE(times) \
   for (int k = 0; k < (times); k++) { \
     sp_blsaw_compute ( \
-      key->sp, key->blsaws[j], NULL, &key->sp->out[0]); }
+      self->sp, key->blsaws[j], NULL, &self->sp->out[0]); }
 
           /* randomize voices a bit */
           int distance = 6000;
@@ -199,15 +208,26 @@ activate (
 
       /* create adsr */
       sp_adsr_create (&key->adsr);
-      sp_adsr_init (key->sp, key->adsr);
-
+      sp_adsr_init (self->sp, key->adsr);
     }
+
+  /* create saturator */
+  sp_saturator_create (&self->saturator);
+  sp_saturator_init (self->sp, self->saturator);
+
+  /* create distortion */
+  sp_dist_create (&self->distortion);
+  sp_dist_init (self->sp, self->distortion);
+
+  /* create reverb */
+  sp_zitarev_create (&self->reverb);
+  sp_zitarev_init (self->sp, self->reverb);
 }
 
 /**
  * Processes 1 sample.
  */
-static inline void
+static void
 process (
   SuperSaw * self,
   uint32_t * offset)
@@ -219,14 +239,18 @@ process (
     {
       MidiKey * key = &self->keys[i];
 
+      if (key->last_adsr < 0.0001f &&
+          !key->pressed)
+        continue;
+
       /* compute adsr */
+      SPFLOAT adsr = 0, gate = key->pressed;
       key->adsr->atk = self->attack;
       key->adsr->dec = self->decay;
       key->adsr->sus = self->sustain;
       key->adsr->rel = self->release;
-      SPFLOAT adsr = 0, gate = key->pressed;
       sp_adsr_compute (
-        key->sp, key->adsr, &gate, &adsr);
+        self->sp, key->adsr, &gate, &adsr);
       adsr = adsr < 1.01f ? adsr : 0.f;
 
       if (adsr > 0.f)
@@ -235,15 +259,18 @@ process (
           for (int j = 0; j < 7; j++)
             {
               sp_blsaw_compute (
-                key->sp, key->blsaws[j], NULL,
-                &key->sp->out[0]);
+                self->sp, key->blsaws[j], NULL,
+                &self->sp->out[0]);
 
               float proximity_to_voice1 =
                 ((float) (7 - j) / 7.f);
               proximity_to_voice1 +=
                 *self->amount * (1.f - proximity_to_voice1);
               float val =
-                key->sp->out[0] * adsr * proximity_to_voice1;
+                self->sp->out[0] * adsr * proximity_to_voice1;
+
+              /* multiply by velocity */
+              val *= ((float) key->vel) / 127.f;
 
               if (j % 2 == 0)
                 {
@@ -256,8 +283,43 @@ process (
                   self->stereo_out_r[*offset] += val * 0.8f;
                 }
             }
+
+          key->last_adsr = adsr;
         }
     }
+
+#if 0
+  /* saturate */
+  float saturated = 0;
+  sp_saturator_compute (
+    self->sp, self->saturator, &self->stereo_out_l[*offset],
+    &saturated);
+  self->stereo_out_l[*offset] += saturated;
+  sp_saturator_compute (
+    self->sp, self->saturator, &self->stereo_out_r[*offset],
+    &saturated);
+  self->stereo_out_r[*offset] += saturated;
+#endif
+
+  /* distort */
+  float distortion = 0;
+  sp_dist_compute (
+    self->sp, self->distortion, &self->stereo_out_l[*offset],
+    &distortion);
+  self->stereo_out_l[*offset] += distortion;
+  sp_dist_compute (
+    self->sp, self->distortion, &self->stereo_out_r[*offset],
+    &distortion);
+  self->stereo_out_r[*offset] += distortion;
+
+  /* reverb */
+  sp_zitarev_compute (
+    self->sp, self->reverb,
+    &self->stereo_out_l[*offset],
+    &self->stereo_out_r[*offset],
+    &self->stereo_out_l[*offset],
+    &self->stereo_out_r[*offset]);
+
   (*offset)++;
 }
 
@@ -275,9 +337,14 @@ run (
   self->decay = 0.04f;
   self->sustain = 0.5f;
   self->release = 0.04f;
-  self->num_voices =
-    1 + math_round_float_to_int (*self->amount * 6.f);
-  printf ("num voices %d\n", self->num_voices);
+  self->saturator->drive = *self->amount * 0.4f;
+  self->saturator->dcoffset = *self->amount * 0.4f;
+  self->distortion->shape1 = *self->amount * 0.4f;
+  self->distortion->shape2 = *self->amount * 0.4f;
+  *self->reverb->mix = *self->amount * 0.5f;
+  *self->reverb->level = 0.f;
+  /*self->num_voices =*/
+    /*1 + math_round_float_to_int (*self->amount * 6.f);*/
 
   /* read incoming events from host and UI */
   LV2_ATOM_SEQUENCE_FOREACH (
@@ -291,17 +358,18 @@ run (
           switch (lv2_midi_message_type(msg))
             {
             case LV2_MIDI_MSG_NOTE_ON:
-              printf ("note on at %ld: %u (vel %u)\n",
-                ev->time.frames, msg[1], msg[2]);
+              /*printf ("note on at %ld: %u (vel %u)\n",*/
+                /*ev->time.frames, msg[1], msg[2]);*/
               self->keys[msg[1]].pressed = 1;
+              self->keys[msg[1]].vel = msg[2];
               break;
             case LV2_MIDI_MSG_NOTE_OFF:
-              printf ("note off at %ld: %u\n",
-                ev->time.frames, msg[1]);
+              /*printf ("note off at %ld: %u\n",*/
+                /*ev->time.frames, msg[1]);*/
               self->keys[msg[1]].pressed = 0;
               break;
             default:
-              printf ("unknown MIDI message\n");
+              /*printf ("unknown MIDI message\n");*/
               break;
             }
           while (processed < ev->time.frames)
@@ -334,13 +402,12 @@ deactivate (
 
   for (int i = 0; i < 128; i++)
     {
-      MidiKey key = self->keys[i];
+      MidiKey * key = &self->keys[i];
       for (int j = 0; j < 7; j++)
         {
-          sp_blsaw_destroy (&key.blsaws[j]);
-          sp_destroy (&key.sp);
+          sp_blsaw_destroy (&key->blsaws[j]);
         }
-      sp_destroy (&key.sp);
+      sp_destroy (&self->sp);
     }
 }
 

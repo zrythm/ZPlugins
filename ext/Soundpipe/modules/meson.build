@@ -19,6 +19,7 @@ soundpipe_module_files = files([
   'adsr.c',
   'base.c',
   'blsaw.c',
+  'dist.c',
   'spa.c',
   'saturator.c',
   'zitarev.c',
