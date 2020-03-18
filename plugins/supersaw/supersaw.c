@@ -27,15 +27,6 @@
 
 #include "soundpipe.h"
 
-typedef enum MidiKeyPhase
-{
-  PHASE_OFF,
-  PHASE_ATTACK,
-  PHASE_DECAY,
-  PHASE_SUSTAIN,
-  PHASE_RELEASE,
-} MidiKeyPhase;
-
 typedef struct MidiKey
 {
   /** Pitch 0-127. */
@@ -43,9 +34,6 @@ typedef struct MidiKey
 
   /** Whether currently pressed. */
   int           pressed;
-
-  /** Current phase. */
-  MidiKeyPhase  phase;
 
   /** How many samples we are into the phase. */
   size_t        offset;
@@ -76,18 +64,11 @@ typedef struct SuperSaw
   /** Events in the queue. */
   MidiKey       keys[127];
 
-  /** Length of attack in samples. */
-  size_t        attack_length;
-
-  /** Length of decay in samples. */
-  size_t        decay_length;
-
-  /** Sustain value. */
-  float         sustain_val;
-
-  /** Voices. */
-  /*Voice         voices[14];*/
-  /*int           num_voices;*/
+  /** Current values based on \ref SuperSaw.amount. */
+  float         attack;
+  float         decay;
+  float         sustain;
+  float         release;
 
   SuperSawCommon common;
 } SuperSaw;
@@ -184,6 +165,7 @@ activate (
       sp_blsaw_init (key->sp, key->blsaw);
       sp_adsr_create (&key->adsr);
       sp_adsr_init (key->sp, key->adsr);
+      key->sp->len = 4800 * 4;
       *key->blsaw->freq =
         440.f * powf (2.f, ((float) i - 49.f) / 12.f);
       *key->blsaw->amp = 0.3f;
@@ -204,34 +186,21 @@ process (
   for (int i = 0; i < 128; i++)
     {
       MidiKey * key = &self->keys[i];
-      /*float val = 0.f;*/
-#if 0
-      if (key->phase == PHASE_OFF)
-        continue;
 
-      switch (key->phase)
-        {
-        case PHASE_ATTACK:
-        case PHASE_DECAY:
-        case PHASE_SUSTAIN:
-        case PHASE_RELEASE:
-          break;
-        default:
-          break;
-        }
-#endif
+      key->adsr->atk = self->attack;
+      key->adsr->dec = self->decay;
+      key->adsr->sus = self->sustain;
+      key->adsr->rel = self->release;
+      SPFLOAT adsr = 0, gate = key->pressed;
+      sp_adsr_compute (
+        key->sp, key->adsr, &gate, &adsr);
+      sp_blsaw_compute (
+        key->sp, key->blsaw, NULL, &key->sp->out[0]);
 
-      if (key->pressed)
-        {
-          key->sp->len = 4800 * 4;
-          sp_blsaw_compute (
-            key->sp, key->blsaw, NULL, &key->sp->out[0]);
-          key->offset =
-            (key->offset + 1) % (size_t) self->common.samplerate;
-
-          self->stereo_out_l[*offset] += key->sp->out[0];
-          self->stereo_out_r[*offset] += key->sp->out[0];
-        }
+      self->stereo_out_l[*offset] +=
+        key->sp->out[0] * (adsr < 1.01f ? adsr : 0.f);
+      self->stereo_out_r[*offset] +=
+        key->sp->out[0] * (adsr < 1.01f ? adsr : 0.f);
     }
   (*offset)++;
 }
@@ -244,6 +213,12 @@ run (
   SuperSaw * self = (SuperSaw *) instance;
 
   uint32_t processed = 0;
+
+  /* adjust amounts */
+  self->attack = 0.02f;
+  self->decay = 0.04f;
+  self->sustain = 0.5f;
+  self->release = 0.04f;
 
   /* read incoming events from host and UI */
   LV2_ATOM_SEQUENCE_FOREACH (
