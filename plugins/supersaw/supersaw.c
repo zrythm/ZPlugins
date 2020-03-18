@@ -39,7 +39,8 @@ typedef struct MidiKey
   size_t        offset;
 
   sp_adsr *     adsr;
-  sp_blsaw *    blsaw;
+  sp_saturator * saturator;
+  sp_blsaw *    blsaws[7];
   sp_data *     sp;
 } MidiKey;
 
@@ -62,13 +63,14 @@ typedef struct SuperSaw
   float *       stereo_out_r;
 
   /** Events in the queue. */
-  MidiKey       keys[127];
+  MidiKey       keys[128];
 
   /** Current values based on \ref SuperSaw.amount. */
   float         attack;
   float         decay;
   float         sustain;
   float         release;
+  int           num_voices;
 
   SuperSawCommon common;
 } SuperSaw;
@@ -160,15 +162,45 @@ activate (
   for (int i = 0; i < 128; i++)
     {
       MidiKey * key = &self->keys[i];
+
       sp_create (&key->sp);
-      sp_blsaw_create (&key->blsaw);
-      sp_blsaw_init (key->sp, key->blsaw);
+      key->sp->len = 4800 * 6;
+
+      /* create 7 saws */
+      for (int j = 0; j < 7; j++)
+        {
+          sp_create (&key->sp);
+          key->sp->len = 4800 * 60;
+          sp_blsaw_create (&key->blsaws[j]);
+          sp_blsaw_init (key->sp, key->blsaws[j]);
+          float freq =
+            440.f * powf (2.f, ((float) i - 69.f) / 12.f);
+          *key->blsaws[j]->freq = freq;
+
+#define COMPUTE(times) \
+  for (int k = 0; k < (times); k++) { \
+    sp_blsaw_compute ( \
+      key->sp, key->blsaws[j], NULL, &key->sp->out[0]); }
+
+          /* randomize voices a bit */
+          int distance = 6000;
+          int is_even = (j % 2) == 0;
+          int computed = distance * 5;
+          if (is_even)
+            computed += (j / 2) * distance;
+          else
+            computed += (j / 2 + 1) * - distance;
+          COMPUTE (computed);
+
+          *key->blsaws[j]->freq = freq + rand () % 4;
+
+          *key->blsaws[j]->amp = 1.0f;
+        }
+
+      /* create adsr */
       sp_adsr_create (&key->adsr);
       sp_adsr_init (key->sp, key->adsr);
-      key->sp->len = 4800 * 4;
-      *key->blsaw->freq =
-        440.f * powf (2.f, ((float) i - 49.f) / 12.f);
-      *key->blsaw->amp = 0.3f;
+
     }
 }
 
@@ -187,6 +219,7 @@ process (
     {
       MidiKey * key = &self->keys[i];
 
+      /* compute adsr */
       key->adsr->atk = self->attack;
       key->adsr->dec = self->decay;
       key->adsr->sus = self->sustain;
@@ -194,13 +227,36 @@ process (
       SPFLOAT adsr = 0, gate = key->pressed;
       sp_adsr_compute (
         key->sp, key->adsr, &gate, &adsr);
-      sp_blsaw_compute (
-        key->sp, key->blsaw, NULL, &key->sp->out[0]);
+      adsr = adsr < 1.01f ? adsr : 0.f;
 
-      self->stereo_out_l[*offset] +=
-        key->sp->out[0] * (adsr < 1.01f ? adsr : 0.f);
-      self->stereo_out_r[*offset] +=
-        key->sp->out[0] * (adsr < 1.01f ? adsr : 0.f);
+      if (adsr > 0.f)
+        {
+          /* compute as many supersaws as needed */
+          for (int j = 0; j < 7; j++)
+            {
+              sp_blsaw_compute (
+                key->sp, key->blsaws[j], NULL,
+                &key->sp->out[0]);
+
+              float proximity_to_voice1 =
+                ((float) (7 - j) / 7.f);
+              proximity_to_voice1 +=
+                *self->amount * (1.f - proximity_to_voice1);
+              float val =
+                key->sp->out[0] * adsr * proximity_to_voice1;
+
+              if (j % 2 == 0)
+                {
+                  self->stereo_out_l[*offset] += val * 0.8f;
+                  self->stereo_out_r[*offset] += val * 0.2f;
+                }
+              else
+                {
+                  self->stereo_out_l[*offset] += val * 0.2f;
+                  self->stereo_out_r[*offset] += val * 0.8f;
+                }
+            }
+        }
     }
   (*offset)++;
 }
@@ -219,6 +275,9 @@ run (
   self->decay = 0.04f;
   self->sustain = 0.5f;
   self->release = 0.04f;
+  self->num_voices =
+    1 + math_round_float_to_int (*self->amount * 6.f);
+  printf ("num voices %d\n", self->num_voices);
 
   /* read incoming events from host and UI */
   LV2_ATOM_SEQUENCE_FOREACH (
@@ -276,7 +335,11 @@ deactivate (
   for (int i = 0; i < 128; i++)
     {
       MidiKey key = self->keys[i];
-      sp_blsaw_destroy (&key.blsaw);
+      for (int j = 0; j < 7; j++)
+        {
+          sp_blsaw_destroy (&key.blsaws[j]);
+          sp_destroy (&key.sp);
+        }
       sp_destroy (&key.sp);
     }
 }

@@ -181,4 +181,16 @@ log_error (
 # define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 #endif
 
+/**
+ * Rounds a float to a given type.
+ */
+#define math_round_float_to_type(x,type) \
+  ((type) (x + 0.5f - (x < 0.f)))
+
+/**
+ * Rounds a float to an int.
+ */
+#define math_round_float_to_int(x) \
+  math_round_float_to_type (x,int)
+
 #endif
