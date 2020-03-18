@@ -1,0 +1,92 @@
+# Copyright (C) 2019 Alexandros Theodotou <alex at zrythm dot org>
+#
+# This file is part of ZToolkit
+#
+# ZToolkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# ZToolkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with ZToolkit.  If not, see <https://www.gnu.org/licenses/>.
+
+# Build files
+build
+builddir
+_build
+
+# -- C++
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+**/*/*.so*
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+build/*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# -- Vim
+# Swap
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+.vimrc
+
+# Session
+Session.vim
+
+# Temporary
+.netrwhist
+*~
+*.ui#
+**/.deps
+
+# Auto-generated tag files
+tags
+# Persistent undo
+[._]*.un~
+
+# Backup files
+*.bak
+
+# Valgrind
+vgcore.*
+
+# callgrind
+callgrind.*
+
+# subprojects
+subprojects/**/*
+!subprojects/*.wrap
