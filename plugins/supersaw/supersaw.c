@@ -17,6 +17,7 @@
  * along with ZSuperSaw.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <float.h>
 #include <math.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -37,6 +38,9 @@ typedef struct MidiKey
 
   /** How many samples we are into the phase. */
   size_t        offset;
+
+  /** Standard frequency for this key. */
+  float         base_freq;
 
   /** Velocity. */
   int           vel;
@@ -82,6 +86,9 @@ typedef struct SuperSaw
   sp_data *     sp;
 
   SuperSawCommon common;
+
+  /* cache */
+  float         last_amount;
 } SuperSaw;
 
 static LV2_Handle
@@ -161,6 +168,40 @@ connect_port (
     }
 }
 
+/**
+ * To be called when the amount changes.
+ */
+static void
+recalc_values (
+  SuperSaw * self)
+{
+  for (int i = 0; i < 128; i++)
+    {
+      MidiKey * key = &self->keys[i];
+
+      for (int j = 0; j < 7; j++)
+        {
+          /* voice spread */
+          int is_even = (j % 2) == 0;
+          float freq_apart;
+          float freq_delta =
+            (*self->amount + 0.4f * (1.f - *self->amount)) *
+            2.4f;
+          if (is_even)
+            {
+              freq_apart = (float) (j / 2) * freq_delta;
+            }
+          else
+            {
+              freq_apart = (float) (j / 2 + 1) * - freq_delta;
+            }
+          *key->blsaws[j]->freq =
+            key->base_freq +
+            math_round_float_to_int (freq_apart);
+        }
+    }
+}
+
 static void
 activate (
   LV2_Handle instance)
@@ -175,6 +216,9 @@ activate (
       sp_create (&self->sp);
       self->sp->len = 4800 * 6;
 
+      key->base_freq =
+        440.f * powf (2.f, ((float) i - 69.f) / 12.f);
+
       /* create 7 saws */
       for (int j = 0; j < 7; j++)
         {
@@ -182,26 +226,26 @@ activate (
           self->sp->len = 4800 * 60;
           sp_blsaw_create (&key->blsaws[j]);
           sp_blsaw_init (self->sp, key->blsaws[j]);
-          float freq =
-            440.f * powf (2.f, ((float) i - 69.f) / 12.f);
-          *key->blsaws[j]->freq = freq;
 
 #define COMPUTE(times) \
   for (int k = 0; k < (times); k++) { \
     sp_blsaw_compute ( \
-      self->sp, key->blsaws[j], NULL, &self->sp->out[0]); }
+      self->sp, key->blsaws[j], NULL, &self->sp->out[0]); \
+  }
 
           /* randomize voices a bit */
           int distance = 6000;
           int is_even = (j % 2) == 0;
           int computed = distance * 5;
           if (is_even)
-            computed += (j / 2) * distance;
+            {
+              computed += (j / 2) * distance;
+            }
           else
-            computed += (j / 2 + 1) * - distance;
+            {
+              computed += (j / 2 + 1) * - distance;
+            }
           COMPUTE (computed);
-
-          *key->blsaws[j]->freq = freq + rand () % 4;
 
           *key->blsaws[j]->amp = 1.0f;
         }
@@ -210,6 +254,8 @@ activate (
       sp_adsr_create (&key->adsr);
       sp_adsr_init (self->sp, key->adsr);
     }
+
+  recalc_values (self);
 
   /* create saturator */
   sp_saturator_create (&self->saturator);
@@ -332,6 +378,11 @@ run (
 
   uint32_t processed = 0;
 
+  if (!math_floats_equal (self->last_amount, *self->amount))
+    {
+      recalc_values (self);
+    }
+
   /* adjust amounts */
   self->attack = 0.02f;
   self->decay = 0.04f;
@@ -392,6 +443,8 @@ run (
     {
       process (self, &processed);
     }
+
+  self->last_amount = *self->amount;
 }
 
 static void

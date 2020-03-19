@@ -76,6 +76,23 @@ typedef enum PortIndex
    * of saws. */
   SUPERSAW_AMOUNT,
 
+#if 0
+  /** Spacing of voices. */
+  SUPERSAW_WIDTH,
+
+  /** Voice blend. */
+  SUPERSAW_BLEND,
+
+  /** ADSR. */
+  SUPERSAW_ATTACK,
+  SUPERSAW_DECAY,
+  SUPERSAW_SUSTAIN,
+  SUPERSAW_RELEASE,
+
+  SUPERSAW_REVERB,
+  SUPERSAW_DISTORTION,
+#endif
+
   /** Outputs. */
   SUPERSAW_STEREO_OUT_L,
   SUPERSAW_STEREO_OUT_R,
@@ -192,5 +209,13 @@ log_error (
  */
 #define math_round_float_to_int(x) \
   math_round_float_to_type (x,int)
+
+/**
+ * Checks if 2 floats are equal.
+ */
+#define math_floats_equal(a,b) \
+  ((a) > (b) ? \
+   (a) - (b) < FLT_EPSILON : \
+   (b) - (a) < FLT_EPSILON)
 
 #endif
