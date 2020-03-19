@@ -175,9 +175,25 @@ static void
 recalc_values (
   SuperSaw * self)
 {
+  self->attack = 0.02f;
+  self->decay = 0.04f + *self->amount * 0.4f;
+  self->sustain = 0.5f;
+  self->release = 0.04f + *self->amount * 0.4f;
+  self->saturator->drive = *self->amount * 0.3f;
+  self->saturator->dcoffset = *self->amount * 0.3f;
+  self->distortion->shape1 = *self->amount * 0.2f;
+  self->distortion->shape2 = *self->amount * 0.2f;
+  *self->reverb->mix = *self->amount * 0.5f;
+
   for (int i = 0; i < 128; i++)
     {
       MidiKey * key = &self->keys[i];
+
+      /* adsr */
+      key->adsr->atk = self->attack;
+      key->adsr->dec = self->decay;
+      key->adsr->sus = self->sustain;
+      key->adsr->rel = self->release;
 
       for (int j = 0; j < 7; j++)
         {
@@ -255,8 +271,6 @@ activate (
       sp_adsr_init (self->sp, key->adsr);
     }
 
-  recalc_values (self);
-
   /* create saturator */
   sp_saturator_create (&self->saturator);
   sp_saturator_init (self->sp, self->saturator);
@@ -268,6 +282,9 @@ activate (
   /* create reverb */
   sp_zitarev_create (&self->reverb);
   sp_zitarev_init (self->sp, self->reverb);
+  *self->reverb->level = 0.f;
+
+  recalc_values (self);
 }
 
 /**
@@ -291,10 +308,6 @@ process (
 
       /* compute adsr */
       SPFLOAT adsr = 0, gate = key->pressed;
-      key->adsr->atk = self->attack;
-      key->adsr->dec = self->decay;
-      key->adsr->sus = self->sustain;
-      key->adsr->rel = self->release;
       sp_adsr_compute (
         self->sp, key->adsr, &gate, &adsr);
       adsr = adsr < 1.01f ? adsr : 0.f;
@@ -382,20 +395,6 @@ run (
     {
       recalc_values (self);
     }
-
-  /* adjust amounts */
-  self->attack = 0.02f;
-  self->decay = 0.04f;
-  self->sustain = 0.5f;
-  self->release = 0.04f;
-  self->saturator->drive = *self->amount * 0.4f;
-  self->saturator->dcoffset = *self->amount * 0.4f;
-  self->distortion->shape1 = *self->amount * 0.4f;
-  self->distortion->shape2 = *self->amount * 0.4f;
-  *self->reverb->mix = *self->amount * 0.5f;
-  *self->reverb->level = 0.f;
-  /*self->num_voices =*/
-    /*1 + math_round_float_to_int (*self->amount * 6.f);*/
 
   /* read incoming events from host and UI */
   LV2_ATOM_SEQUENCE_FOREACH (
