@@ -17,7 +17,7 @@
 
 # name, version
 plugins = [
-  ['SuperSaw', '0.0.1'],
+  ['Saw', '0.0.1'],
   ]
 
 foreach pl : plugins
@@ -105,18 +105,22 @@ foreach pl : plugins
     link_with: soundpipe_lib,
     install: true,
     install_dir: pl_dir,
-    c_args: common_cflags,
+    c_args: [
+      common_cflags,
+      '-DPLUGIN_CONFIG="../' + pl_lowercase + '_config.h"',
+      ],
     )
 
   # create and install manifest ttl
   manifest_ttl = configure_file (
     input: join_paths (pl_lowercase, 'manifest.ttl.in'),
-    output: 'manifest.ttl',
+    output: pl_str + '_manifest.ttl',
     configuration: pl_cdata,
     )
   install_data (
     manifest_ttl,
     install_dir: pl_dir,
+    rename: 'manifest.ttl',
     )
 
   # create and install ttl
@@ -128,7 +132,10 @@ foreach pl : plugins
       ],
     include_directories: pl_inc_dirs,
     dependencies: lv2_dep,
-    c_args: common_cflags,
+    c_args: [
+      common_cflags,
+      '-DPLUGIN_CONFIG="../' + pl_lowercase + '_config.h"',
+      ],
     install: false,
     )
   pl_ttl = custom_target (
@@ -148,13 +155,17 @@ foreach pl : plugins
     'lv2_validate', required: false)
   sord_validate = find_program (
     'sord_validate', required: false)
-  if (lv2lint.found())
+  if lv2lint.found() and (os_linux or os_freebsd)
+    lv2lint_wrap = find_program (
+      join_paths ('..', 'scripts', 'lv2lint_wrap.sh'))
     test (
-      'LV2 lint', lv2lint,
-      env: ['LV2_PATH=' + pl_build_dir + '/'],
+      'LV2 lint', lv2lint_wrap,
       args: [
-        '-I', pl_build_dir + '/',
-        pl_cdata.get ('PLUGIN_URI')])
+        lv2lint.path(),
+        pl_build_dir,
+        pl_str,
+        pl_cdata.get('PLUGIN_URI'),
+        ])
   endif
   if lv2_validate.found() and sord_validate.found()
     test (

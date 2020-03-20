@@ -90,3 +90,6 @@ callgrind.*
 # subprojects
 subprojects/**/*
 !subprojects/*.wrap
+
+# gprof
+results

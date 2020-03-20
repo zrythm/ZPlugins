@@ -17,7 +17,7 @@
  * along with ZPlugins.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "../supersaw_config.h"
+#include PLUGIN_CONFIG
 
 #include <stdio.h>
 
@@ -54,7 +54,8 @@ int main (
 @prefix rsz:  <http://lv2plug.in/ns/ext/resize-port#> .\n\
 @prefix time:  <http://lv2plug.in/ns/ext/time#> .\n\
 @prefix urid: <http://lv2plug.in/ns/ext/urid#> .\n\
-@prefix ui:   <http://lv2plug.in/ns/extensions/ui#> .\n\n");
+@prefix ui:   <http://lv2plug.in/ns/extensions/ui#> .\n\
+@prefix work:  <http://lv2plug.in/ns/ext/worker#> .\n\n");
 
   fprintf (f,
 "<" PROJECT_URI ">\n\
@@ -73,9 +74,11 @@ int main (
   ] ;\n\
   doap:license <https://www.gnu.org/licenses/agpl-3.0.html> ;\n\
   lv2:project <" PROJECT_URI "> ;\n\
-  lv2:requiredFeature urid:map ;\n\
+  lv2:requiredFeature urid:map ,\n\
+                      work:schedule ;\n\
   lv2:optionalFeature log:log ,\n\
                       lv2:hardRTCapable ;\n\
+  lv2:extensionData work:interface ;\n\
   lv2:port [\n\
     a lv2:InputPort ,\n\
       atom:AtomPort ;\n\

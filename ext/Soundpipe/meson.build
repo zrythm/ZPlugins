@@ -37,4 +37,7 @@ soundpipe_lib = static_library (
     dependency('sndfile'),
     cc.find_library('m'),
     ],
+  c_args: [
+    '-fvisibility=hidden',
+    ],
   )

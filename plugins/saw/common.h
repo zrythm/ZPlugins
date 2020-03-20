@@ -26,7 +26,7 @@
 #ifndef __Z_SUPERSAW_COMMON_H__
 #define __Z_SUPERSAW_COMMON_H__
 
-#include "../supersaw_config.h"
+#include PLUGIN_CONFIG
 
 #include <string.h>
 
@@ -34,11 +34,13 @@
 #include "lv2/atom/forge.h"
 #include "lv2/core/lv2.h"
 #include "lv2/log/log.h"
+#include "lv2/log/logger.h"
 #include "lv2/midi/midi.h"
 #include "lv2/urid/urid.h"
 #include "lv2/time/time.h"
+#include "lv2/worker/worker.h"
 
-typedef struct SuperSawUris
+typedef struct SawUris
 {
   LV2_URID atom_eventTransfer;
   LV2_URID atom_Blank;
@@ -62,8 +64,10 @@ typedef struct SuperSawUris
   LV2_URID time_speed;
 
   /* custom URIs for communication */
+  LV2_URID saw_calcValues;
+  LV2_URID saw_freeValues;
 
-} SuperSawUris;
+} SawUris;
 
 typedef enum PortIndex
 {
@@ -103,29 +107,35 @@ typedef enum PortIndex
  * Group of variables needed by both the DSP and
  * the UI.
  */
-typedef struct SuperSawCommon
+typedef struct SawCommon
 {
   /** Log feature. */
-  LV2_Log_Log *        log;
+  LV2_Log_Log *   log;
 
   /** Map feature. */
-  LV2_URID_Map *       map;
+  LV2_URID_Map *  map;
+
+  /** Logger convenience API. */
+  LV2_Log_Logger  logger;
+
+  /** Worker schedule feature. */
+  LV2_Worker_Schedule* schedule;
 
   /** Atom forge. */
-  LV2_Atom_Forge forge;
+  LV2_Atom_Forge  forge;
 
   /** URIs. */
-  SuperSawUris         uris;
+  SawUris         uris;
 
   /** Plugin samplerate. */
-  double        samplerate;
+  double          samplerate;
 
-} SuperSawCommon;
+} SawCommon;
 
 static inline void
 map_uris (
   LV2_URID_Map* map,
-  SuperSawUris* uris)
+  SawUris* uris)
 {
 #define MAP(x,uri) \
   uris->x = map->map (map->handle, uri)
@@ -154,6 +164,8 @@ map_uris (
   MAP (time_speed, LV2_TIME__speed);
 
   /* custom URIs */
+  MAP (saw_freeValues, PLUGIN_URI "#freeValues");
+  MAP (saw_calcValues, PLUGIN_URI "#calcValues");
 }
 
 /**
@@ -162,7 +174,7 @@ map_uris (
 static inline void
 log_error (
   LV2_Log_Log * log,
-  SuperSawUris *    uris,
+  SawUris *    uris,
   const char *  _fmt,
   ...)
 {
