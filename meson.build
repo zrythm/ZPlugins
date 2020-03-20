@@ -121,6 +121,19 @@ if get_option ('strict_flags')
   endif
 endif
 
+if (get_option ('buildtype') == 'release')
+  common_cflags += cc.get_supported_arguments([
+    '-ffast-math',
+    '-DPIC',
+    '-fdata-sections',
+    '-ffunction-sections',
+    '-mtune=generic',
+    '-msse',
+    '-msse2',
+    '-mfpmath=sse',
+    ])
+endif
+
 if os_windows
   common_cflags += [
     '-D_WOE32=1',

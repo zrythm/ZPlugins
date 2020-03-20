@@ -336,7 +336,7 @@ instantiate (
       MidiKey * key = &self->keys[i];
 
       sp_create (&self->sp);
-      self->sp->len = 4800 * 6;
+      self->sp->len = 1;
 
       key->base_freq =
         440.f * powf (2.f, ((float) i - 69.f) / 12.f);
@@ -344,10 +344,9 @@ instantiate (
       /* create 7 saws */
       for (int j = 0; j < 7; j++)
         {
-          sp_create (&self->sp);
-          self->sp->len = 4800 * 60;
           sp_blsaw_create (&key->blsaws[j]);
           sp_blsaw_init (self->sp, key->blsaws[j]);
+          *key->blsaws[j]->amp = 1.0f;
 
 #define COMPUTE(times) \
   for (int k = 0; k < (times); k++) { \
@@ -368,8 +367,6 @@ instantiate (
               computed += (j / 2 + 1) * - distance;
             }
           COMPUTE (computed);
-
-          *key->blsaws[j]->amp = 1.0f;
         }
 
       /* create adsr */
