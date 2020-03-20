@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <time.h>
+#include <sys/time.h>
 
 #include "common.h"
 
@@ -128,11 +129,11 @@ calc_values (
   values->decay = 0.04f + *self->amount * 0.4f;
   values->sustain = 0.5f;
   values->release = 0.04f + *self->amount * 0.4f;
-  values->saturator_drive = *self->amount * 0.3f;
-  values->saturator_dcoffset = *self->amount * 0.3f;
-  values->distortion_shape1 = *self->amount * 0.2f;
-  values->distortion_shape2 = *self->amount * 0.2f;
-  values->reverb_mix = *self->amount * 0.5f;
+  values->saturator_drive = 0.01f + *self->amount * 0.3f;
+  values->saturator_dcoffset = 0.01f + *self->amount * 0.3f;
+  values->distortion_shape1 = 0.01f + *self->amount * 0.2f;
+  values->distortion_shape2 = 0.01f + *self->amount * 0.2f;
+  values->reverb_mix = 0.01f + *self->amount * 0.5f;
 
   float freq_delta =
     (*self->amount + 0.4f * (1.f - *self->amount)) *
@@ -459,13 +460,17 @@ process (
           !key->pressed)
         continue;
 
+      if (*offset == 0)
+        printf ("computing for key %d\n", i);
       /* compute adsr */
       SPFLOAT adsr = 0, gate = key->pressed;
       sp_adsr_compute (
         self->sp, key->adsr, &gate, &adsr);
-      adsr = adsr < 1.01f ? adsr : 0.f;
+      adsr = adsr < 1.001f ? adsr : 0.0f;
 
-      if (adsr > 0.f)
+      float normalized_vel = ((float) key->vel) / 127.f;
+
+      if (adsr > 0.0f)
         {
           /* compute as many supersaws as needed */
           for (int j = 0; j < 7; j++)
@@ -482,7 +487,7 @@ process (
                 self->sp->out[0] * adsr * proximity_to_voice1;
 
               /* multiply by velocity */
-              val *= ((float) key->vel) / 127.f;
+              val *= normalized_vel;
 
               if (j % 2 == 0)
                 {
@@ -542,6 +547,10 @@ run (
   uint32_t n_samples)
 {
   Saw * self = (Saw *) instance;
+
+  struct timeval tp;
+  gettimeofday(&tp, NULL);
+  long int ms = tp.tv_sec * 1000000 + tp.tv_usec;
 
   uint32_t processed = 0;
 
@@ -609,6 +618,10 @@ run (
     }
 
   self->last_amount = *self->amount;
+
+  gettimeofday(&tp, NULL);
+  ms = (tp.tv_sec * 1000000 + tp.tv_usec) - ms;
+  printf("us taken %ld\n", ms);
 }
 
 static void
