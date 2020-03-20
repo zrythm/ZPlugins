@@ -104,6 +104,7 @@ typedef struct Saw
   sp_saturator * saturator;
   sp_dist *     distortion;
   sp_zitarev *  reverb;
+  sp_compressor * compressor;
   sp_data *     sp;
 
   SawCommon common;
@@ -375,6 +376,14 @@ instantiate (
       sp_adsr_init (self->sp, key->adsr);
     }
 
+  /* create compressor */
+  sp_compressor_create (&self->compressor);
+  sp_compressor_init (self->sp, self->compressor);
+  *self->compressor->ratio = 2;
+  *self->compressor->thresh = -8;
+  *self->compressor->atk = 0.1f;
+  *self->compressor->rel = 0.2f;
+
   /* create saturator */
   sp_saturator_create (&self->saturator);
   sp_saturator_init (self->sp, self->saturator);
@@ -505,6 +514,13 @@ process (
         }
     }
 
+#if 0
+  /* compress */
+  sp_compressor_compute (
+    self->sp, self->compressor, current_l, current_l);
+  sp_compressor_compute (
+    self->sp, self->compressor, current_r, current_r);
+
   /* saturate - for some reason it makes noise when it's
    * silent */
   if (fabsf (*current_l) > 0.001f ||
@@ -537,6 +553,7 @@ process (
     self->sp, self->reverb,
     current_l, current_r,
     current_l, current_r);
+#endif
 
   (*offset)++;
 }
