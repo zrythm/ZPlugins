@@ -28,6 +28,8 @@
 
 #include "soundpipe.h"
 
+#define MAX_SAMPLES 600000
+
 typedef struct MidiKey
 {
   /** Pitch 0-127. */
@@ -46,7 +48,17 @@ typedef struct MidiKey
   int           vel;
 
   sp_adsr *     adsr;
-  sp_blsaw *    blsaws[7];
+
+  /** Pre-calculated saws. */
+  float         waves[7][MAX_SAMPLES];
+
+  /** Sample counts. */
+  size_t        wave_counts[7];
+
+  /** Index to start playing from. */
+  size_t        wave_indices[7];
+
+  float         last_played_samples[7];
 
   /** Last signal known. */
   float         last_adsr;
@@ -67,7 +79,10 @@ typedef struct SawValues
   float      distortion_shape1;
   float      distortion_shape2;
   float      reverb_mix;
-  float      keyfreqs[128][7];
+  /*float      keyfreqs[128][7];*/
+  size_t     key_sample_counts[128][7];
+  float      key_samples[128][7][9000];
+  sp_blsaw * blsaws[128][7];
 } SawValues;
 
 /**
@@ -142,6 +157,10 @@ calc_values (
     {
       for (int j = 0; j < 7; j++)
         {
+          sp_blsaw_create (&values->blsaws[i][j]);
+          sp_blsaw_init (self->sp, values->blsaws[i][j]);
+          *values->blsaws[i][j]->amp = 1.0f;
+
           /* voice spread */
           int is_even = (j % 2) == 0;
           float freq_apart;
@@ -153,9 +172,47 @@ calc_values (
             {
               freq_apart = (float) (j / 2 + 1) * - freq_delta;
             }
-          values->keyfreqs[i][j] =
+          float freq =
+          /*values->keyfreqs[i][j] =*/
             self->keys[i].base_freq +
             math_round_float_to_int (freq_apart);
+          *values->blsaws[i][j]->freq = freq;
+
+          /* calculate saw for 1 cycle */
+          float initial_samples_per_wave =
+            (float) self->common.samplerate / freq;
+
+          /* keep adding until we are close to a whole
+           * number */
+          float samples_per_wave =
+            initial_samples_per_wave;
+          int samples_per_wave_int =
+            math_round_float_to_int (samples_per_wave);
+          while (fabsf (
+                  (float) samples_per_wave_int -
+                    samples_per_wave) > 0.01f &&
+                 (samples_per_wave +
+                    initial_samples_per_wave) <
+                      (float) MAX_SAMPLES)
+            {
+              samples_per_wave += initial_samples_per_wave;
+              samples_per_wave_int =
+                math_round_float_to_int (samples_per_wave);
+            }
+
+          values->key_sample_counts[i][j] =
+            (size_t) samples_per_wave_int;
+
+          /* calculate the values */
+          for (int k = 0; k < samples_per_wave_int; k++)
+            {
+              sp_blsaw_compute (
+                self->sp, values->blsaws[i][j], NULL,
+                &values->key_samples[i][j][k]);
+          /*printf ("computed [%d][%d][%d] %f\n",*/
+            /*i, j, k,*/
+            /*(double) values->key_samples[i][j][j]);*/
+            }
         }
     }
 
@@ -204,8 +261,33 @@ set_values (
 
       for (int j = 0; j < 7; j++)
         {
-          /* spread voices */
-          *key->blsaws[j]->freq = values->keyfreqs[i][j];
+          /* calculate an appropriate index */
+          int wave_index_set = 0;
+          for (size_t k = 0;
+               k < values->key_sample_counts[i][j]; k++)
+            {
+              if (fabsf (
+                    values->key_samples[i][j][k] -
+                    key->last_played_samples[j]) < 0.01f)
+                {
+                  wave_index_set = 1;
+                  key->wave_indices[j] = k + 1;
+                  break;
+                }
+            }
+          if (!wave_index_set &&
+              key->wave_indices[j] >=
+                values->key_sample_counts[i][j])
+            key->wave_indices[j] = 0;
+
+          /* copy pre-calculated waves */
+          memcpy (
+            &key->waves[j][0], &values->key_samples[i][j][0],
+            sizeof (float) *
+              (size_t) values->key_sample_counts[i][j]);
+
+          key->wave_counts[j] =
+            values->key_sample_counts[i][j];
         }
     }
 
@@ -329,48 +411,18 @@ instantiate (
   lv2_log_logger_init (
     &self->common.logger, self->common.map, self->common.log);
 
-  /* create synth */
+  /* create sp */
   srand (time (NULL));
+  sp_create (&self->sp);
+  self->sp->len = MAX_SAMPLES;
+
+  /* create keys */
   for (int i = 0; i < 128; i++)
     {
       MidiKey * key = &self->keys[i];
 
-      sp_create (&self->sp);
-      self->sp->len = 4800 * 6;
-
       key->base_freq =
         440.f * powf (2.f, ((float) i - 69.f) / 12.f);
-
-      /* create 7 saws */
-      for (int j = 0; j < 7; j++)
-        {
-          sp_create (&self->sp);
-          self->sp->len = 4800 * 60;
-          sp_blsaw_create (&key->blsaws[j]);
-          sp_blsaw_init (self->sp, key->blsaws[j]);
-
-#define COMPUTE(times) \
-  for (int k = 0; k < (times); k++) { \
-    sp_blsaw_compute ( \
-      self->sp, key->blsaws[j], NULL, &self->sp->out[0]); \
-  }
-
-          /* randomize voices a bit */
-          int distance = 6000;
-          int is_even = (j % 2) == 0;
-          int computed = distance * 5;
-          if (is_even)
-            {
-              computed += (j / 2) * distance;
-            }
-          else
-            {
-              computed += (j / 2 + 1) * - distance;
-            }
-          COMPUTE (computed);
-
-          *key->blsaws[j]->amp = 1.0f;
-        }
 
       /* create adsr */
       sp_adsr_create (&key->adsr);
@@ -473,9 +525,11 @@ process (
           /* compute as many supersaws as needed */
           for (int j = 0; j < 7; j++)
             {
-              sp_blsaw_compute (
-                self->sp, key->blsaws[j], NULL,
-                &self->sp->out[0]);
+              self->sp->out[0] =
+                key->waves[j][key->wave_indices[j]];
+              key->wave_indices[j] =
+                (key->wave_indices[j] + 1) %
+                  key->wave_counts[j];
 
               float proximity_to_voice1 =
                 ((float) (7 - j) / 7.f);
@@ -622,11 +676,11 @@ deactivate (
 
   for (int i = 0; i < 128; i++)
     {
-      MidiKey * key = &self->keys[i];
-      for (int j = 0; j < 7; j++)
-        {
-          sp_blsaw_destroy (&key->blsaws[j]);
-        }
+      /*MidiKey * key = &self->keys[i];*/
+      /*for (int j = 0; j < 7; j++)*/
+        /*{*/
+          /*sp_blsaw_destroy (&key->blsaws[j]);*/
+        /*}*/
       sp_destroy (&self->sp);
     }
 }
