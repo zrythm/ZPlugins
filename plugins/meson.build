@@ -17,8 +17,9 @@
 
 # name, version
 plugins = [
-  ['Saw', 'InstrumentPlugin', '0.0.1'],
   ['Chordz', 'MIDIPlugin', '0.2.0'],
+  ['Compressor', 'CompressorPlugin', '0.0.1'],
+  ['Saw', 'InstrumentPlugin', '0.0.1'],
   ]
 
 foreach pl : plugins
@@ -65,6 +66,8 @@ foreach pl : plugins
   config_h_data.set_quoted (
     'PLUGIN_URI',
     pl_cdata.get ('PLUGIN_URI'))
+  config_h_data.set_quoted (
+    'PLUGIN_TYPE', pl_type)
   config_h_data.set_quoted (
     'INSTALL_PATH', pl_dir)
   if get_option('buildtype') == 'release'

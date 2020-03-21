@@ -25,6 +25,9 @@
 <@PROJECT_URI@>
   a doap:Project ;
   doap:name "Zrythm plugins" ;
+  doap:description """
+Collection of LV2 plugins to be bundled with Zrythm
+""" ;
   doap:maintainer [
     foaf:name """Alexandros Theodotou""" ;
     foaf:homepage <https://www.zrythm.org> ;
