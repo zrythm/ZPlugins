@@ -625,8 +625,16 @@ run (
           switch (lv2_midi_message_type(msg))
             {
             case LV2_MIDI_MSG_NOTE_ON:
-              self->keys[msg[1]].pressed = 1;
-              self->keys[msg[1]].vel = msg[2];
+              /* note with velocity 0 can be note off */
+              if (msg[2] == 0)
+                {
+                  self->keys[msg[1]].pressed = 0;
+                }
+              else
+                {
+                  self->keys[msg[1]].pressed = 1;
+                  self->keys[msg[1]].vel = msg[2];
+                }
               break;
             case LV2_MIDI_MSG_NOTE_OFF:
               self->keys[msg[1]].pressed = 0;
