@@ -8,7 +8,10 @@ Zrythm DAW.
 
 Plugins
 -------
-ZSuperSaw - a supersaw synth with 1 parameter
+
+Chordz - plays chords using white keys
+Compressor - compressor
+Saw - a supersaw synth with 1 parameter
 
 Dependencies
 ------------
