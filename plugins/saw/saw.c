@@ -61,7 +61,7 @@ typedef struct SawValues
   float      attack;
   float      decay;
   float      sustain;
-  float      release;
+  /*float      release;*/
 
   float      saturator_drive;
   float      saturator_dcoffset;
@@ -69,6 +69,7 @@ typedef struct SawValues
   float      distortion_shape2;
   float      reverb_mix;
   float      keyfreqs[128][7];
+  float      keyreleases[128];
 } SawValues;
 
 /**
@@ -127,9 +128,8 @@ calc_values (
   SawValues * values = calloc (1, sizeof (SawValues));
 
   values->attack = 0.02f;
-  values->decay = 0.04f + *self->amount * 0.4f;
+  values->decay = 0.04f + *self->amount * 0.5f;
   values->sustain = 0.5f;
-  values->release = 0.04f + *self->amount * 0.4f;
   values->saturator_drive = 0.01f + *self->amount * 0.3f;
   values->saturator_dcoffset = 0.01f + *self->amount * 0.3f;
   values->distortion_shape1 = 0.01f + *self->amount * 0.2f;
@@ -144,6 +144,13 @@ calc_values (
 
   for (int i = 0; i < 128; i++)
     {
+      /* calculate release */
+      values->keyreleases[i] =
+        0.04f + *self->amount * 0.4f *
+        /* the higher the key, the more release */
+        (((float) (127 - i) / 127.f) * 0.6f +
+          (float) i / 127.f);
+
       for (int j = 0; j < 7; j++)
         {
           /* voice spread */
@@ -204,7 +211,7 @@ set_values (
       key->adsr->atk = values->attack;
       key->adsr->dec = values->decay;
       key->adsr->sus = values->sustain;
-      key->adsr->rel = values->release;
+      key->adsr->rel = values->keyreleases[i];
 
       for (int j = 0; j < 7; j++)
         {
@@ -470,9 +477,6 @@ process (
       if (key->last_adsr < 0.0001f &&
           !key->pressed)
         continue;
-
-      /*if (*offset == 0)*/
-        /*printf ("computing for key %d\n", i);*/
 
       /* compute adsr */
       SPFLOAT adsr = 0, gate = key->pressed;
