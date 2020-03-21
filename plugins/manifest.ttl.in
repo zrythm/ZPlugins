@@ -15,14 +15,28 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with @PLUGIN_NAME@.  If not, see <https://www.gnu.org/licenses/>.
 
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix pset: <http://lv2plug.in/ns/ext/presets#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix ui:   <http://lv2plug.in/ns/extensions/ui#> .
+
+<@PROJECT_URI@>
+  a doap:Project ;
+  doap:name "Zrythm plugins" ;
+  doap:maintainer [
+    foaf:name """Alexandros Theodotou""" ;
+    foaf:homepage <https://www.zrythm.org> ;
+  ] ;
+  doap:repository [
+    doap:browse <https://git.zrythm.org/cgit/zplugins> ;
+    doap:location <https://git.zrythm.org/git/zplugins> ;
+  ] .
 
 <@PLUGIN_URI@>
   a lv2:Plugin,
-    lv2:MIDIPlugin ;
+    lv2:@PLUGIN_TYPE@ ;
   lv2:binary <@PLUGIN_DSP_BINARY@> ;
   lv2:minorVersion @PLUGIN_MINOR_VERSION@ ;
   lv2:microVersion @PLUGIN_MICRO_VERSION@ ;

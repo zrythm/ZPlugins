@@ -17,8 +17,8 @@
 
 # name, version
 plugins = [
-  ['Saw', '0.0.1'],
-  ['Chordz', '0.2.0'],
+  ['Saw', 'InstrumentPlugin', '0.0.1'],
+  ['Chordz', 'MIDIPlugin', '0.2.0'],
   ]
 
 foreach pl : plugins
@@ -26,7 +26,8 @@ foreach pl : plugins
   pl_caps = pl[0].to_upper ()
   pl_lowercase = pl[0].to_lower ()
   pl_dsp_lib_name_noext = pl_str + '_dsp'
-  pl_version = pl[1]
+  pl_type = pl[1]
+  pl_version = pl[2]
   pl_minor_version = pl_version.split('.')[1]
   pl_micro_version = pl_version.split('.')[1]
 
@@ -43,6 +44,8 @@ foreach pl : plugins
     'PLUGIN_MINOR_VERSION', pl_minor_version)
   pl_cdata.set (
     'PLUGIN_MICRO_VERSION', pl_micro_version)
+  pl_cdata.set (
+    'PLUGIN_TYPE', pl_type)
   if os_windows
     pl_cdata.set (
       'PLUGIN_DSP_BINARY', pl_dsp_lib_name_noext + '.dll')
@@ -117,7 +120,7 @@ foreach pl : plugins
 
   # create and install manifest ttl
   manifest_ttl = configure_file (
-    input: join_paths (pl_lowercase, 'manifest.ttl.in'),
+    input: 'manifest.ttl.in',
     output: pl_str + '_manifest.ttl',
     configuration: pl_cdata,
     )

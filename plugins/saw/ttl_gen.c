@@ -58,20 +58,10 @@ int main (
 @prefix work:  <http://lv2plug.in/ns/ext/worker#> .\n\n");
 
   fprintf (f,
-"<" PROJECT_URI ">\n\
-  a doap:Project ;\n\
-  doap:name \"Zrythm plugins\" .\n\
-\n");
-
-  fprintf (f,
 "<" PLUGIN_URI ">\n\
   a lv2:Plugin,\n\
     lv2:InstrumentPlugin ;\n\
   doap:name \"" PLUGIN_NAME "\" ;\n\
-  doap:maintainer [\n\
-    foaf:name \"\"\"Alexandros Theodotou\"\"\" ;\n\
-    foaf:homepage <https://www.zrythm.org> ;\n\
-  ] ;\n\
   doap:license <https://www.gnu.org/licenses/agpl-3.0.html> ;\n\
   lv2:project <" PROJECT_URI "> ;\n\
   lv2:requiredFeature urid:map ,\n\

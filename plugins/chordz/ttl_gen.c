@@ -45,7 +45,6 @@ int main (
   fprintf (f,
 "@prefix atom: <http://lv2plug.in/ns/ext/atom#> .\n\
 @prefix doap: <http://usefulinc.com/ns/doap#> .\n\
-@prefix foaf: <http://xmlns.com/foaf/0.1/> .\n\
 @prefix log:  <http://lv2plug.in/ns/ext/log#> .\n\
 @prefix lv2:  <http://lv2plug.in/ns/lv2core#> .\n\
 @prefix midi: <http://lv2plug.in/ns/ext/midi#> .\n\
@@ -59,20 +58,10 @@ int main (
 @prefix work:  <http://lv2plug.in/ns/ext/worker#> .\n\n");
 
   fprintf (f,
-"<" PROJECT_URI ">\n\
-  a doap:Project ;\n\
-  doap:name \"Zrythm plugins\" .\n\
-\n");
-
-  fprintf (f,
 "<" PLUGIN_URI ">\n\
   a lv2:Plugin,\n\
     lv2:MIDIPlugin ;\n\
   doap:name \"" PLUGIN_NAME "\" ;\n\
-  doap:maintainer [\n\
-    foaf:name \"\"\"Alexandros Theodotou\"\"\" ;\n\
-    foaf:homepage <https://www.zrythm.org> ;\n\
-  ] ;\n\
   doap:license <https://www.gnu.org/licenses/agpl-3.0.html> ;\n\
   lv2:project <" PROJECT_URI "> ;\n\
   lv2:requiredFeature urid:map ;\n\
