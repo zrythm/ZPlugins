@@ -625,15 +625,21 @@ run (
           switch (lv2_midi_message_type(msg))
             {
             case LV2_MIDI_MSG_NOTE_ON:
-              /*printf ("note on at %ld: %u (vel %u)\n",*/
-                /*ev->time.frames, msg[1], msg[2]);*/
               self->keys[msg[1]].pressed = 1;
               self->keys[msg[1]].vel = msg[2];
               break;
             case LV2_MIDI_MSG_NOTE_OFF:
-              /*printf ("note off at %ld: %u\n",*/
-                /*ev->time.frames, msg[1]);*/
               self->keys[msg[1]].pressed = 0;
+              break;
+            case LV2_MIDI_MSG_CONTROLLER:
+              /* all notes off */
+              if (msg[1] == 0x7b)
+                {
+                  for (int i = 0; i < 128; i++)
+                    {
+                      self->keys[i].pressed = 0;
+                    }
+                }
               break;
             default:
               /*printf ("unknown MIDI message\n");*/
