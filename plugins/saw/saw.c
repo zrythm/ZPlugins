@@ -123,8 +123,8 @@ static SawValues *
 calc_values (
   Saw *  self)
 {
-  lv2_log_note (
-    &self->common.logger, "calculating values\n");
+  /*lv2_log_note (*/
+    /*&self->common.logger, "calculating values\n");*/
   SawValues * values = calloc (1, sizeof (SawValues));
 
   values->attack = 0.02f;
@@ -181,8 +181,8 @@ free_values (
   Saw *  self,
   SawValues * values)
 {
-  lv2_log_note (
-    &self->common.logger, "freeing values\n");
+  /*lv2_log_note (*/
+    /*&self->common.logger, "freeing values\n");*/
   free (values);
 }
 
@@ -195,8 +195,8 @@ set_values (
   Saw *       self,
   SawValues * values)
 {
-  lv2_log_note (
-    &self->common.logger, "setting values\n");
+  /*lv2_log_note (*/
+    /*&self->common.logger, "setting values\n");*/
   self->saturator->drive = values->saturator_drive;
   self->saturator->dcoffset = values->saturator_dcoffset;
   self->distortion->shape1 = values->distortion_shape1;
@@ -232,8 +232,8 @@ work (
 {
   Saw * self = (Saw *) instance;
 
-  lv2_log_note (
-    &self->common.logger, "working\n");
+  /*lv2_log_note (*/
+    /*&self->common.logger, "working\n");*/
   const LV2_Atom * atom =
     (const LV2_Atom *) data;
   if (atom->type == self->common.uris.saw_freeValues)
@@ -275,8 +275,8 @@ work_response (
   self->common.schedule->schedule_work (
     self->common.schedule->handle,
     sizeof (msg), &msg);
-  lv2_log_note (
-    &self->common.logger, "inside work response\n");
+  /*lv2_log_note (*/
+    /*&self->common.logger, "inside work response\n");*/
 
   return LV2_WORKER_SUCCESS;
 }
@@ -590,9 +590,11 @@ run (
   Saw * self = (Saw *) instance;
 
 #ifndef RELEASE
+#if 0
   struct timeval tp;
   gettimeofday(&tp, NULL);
   long int ms = tp.tv_sec * 1000000 + tp.tv_usec;
+#endif
 #endif
 
   uint32_t processed = 0;
@@ -609,8 +611,8 @@ run (
       self->common.schedule->schedule_work (
         self->common.schedule->handle,
         sizeof (msg), &msg);
-      lv2_log_note (
-        &self->common.logger, "scheduled to recalculate\n");
+      /*lv2_log_note (*/
+        /*&self->common.logger, "scheduled to recalculate\n");*/
     }
 
   /* read incoming events from host and UI */
@@ -677,9 +679,11 @@ run (
   self->last_amount = *self->amount;
 
 #ifndef RELEASE
+#if 0
   gettimeofday(&tp, NULL);
   ms = (tp.tv_sec * 1000000 + tp.tv_usec) - ms;
   printf("us taken %ld\n", ms);
+#endif
 #endif
 }
 
