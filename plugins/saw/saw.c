@@ -640,8 +640,8 @@ run (
               self->keys[msg[1]].pressed = 0;
               break;
             case LV2_MIDI_MSG_CONTROLLER:
-              /* all notes off */
-              if (msg[1] == 0x7b)
+              if (msg[1] == 0x7b || // all notes off
+                  msg[1] == 0x78) // all sound off
                 {
                   for (int i = 0; i < 128; i++)
                     {

@@ -18,6 +18,7 @@
 # name, version
 plugins = [
   ['Saw', '0.0.1'],
+  ['Chordz', '0.2.0'],
   ]
 
 foreach pl : plugins
@@ -25,6 +26,9 @@ foreach pl : plugins
   pl_caps = pl[0].to_upper ()
   pl_lowercase = pl[0].to_lower ()
   pl_dsp_lib_name_noext = pl_str + '_dsp'
+  pl_version = pl[1]
+  pl_minor_version = pl_version.split('.')[1]
+  pl_micro_version = pl_version.split('.')[1]
 
   pl_dir = join_paths(lv2dir, pl_str + '.lv2')
   pl_cdata = configuration_data ()
@@ -35,6 +39,10 @@ foreach pl : plugins
   pl_cdata.set (
     'PLUGIN_URI',
     pl_cdata.get ('PROJECT_URI') + '/' + pl_str)
+  pl_cdata.set (
+    'PLUGIN_MINOR_VERSION', pl_minor_version)
+  pl_cdata.set (
+    'PLUGIN_MICRO_VERSION', pl_micro_version)
   if os_windows
     pl_cdata.set (
       'PLUGIN_DSP_BINARY', pl_dsp_lib_name_noext + '.dll')
