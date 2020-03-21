@@ -82,10 +82,6 @@ foreach pl : plugins
     pl_config_h_dep,
     cc.find_library ('m'),
     lv2_dep,
-    #dependency ('sndfile', static: true),
-    #dependency ('flac', static: true),
-    #dependency ('ogg', static: true),
-    #dependency ('vorbis', static: true),
     ]
 
   # create shared library

@@ -589,9 +589,11 @@ run (
 {
   Saw * self = (Saw *) instance;
 
+#ifndef RELEASE
   struct timeval tp;
   gettimeofday(&tp, NULL);
   long int ms = tp.tv_sec * 1000000 + tp.tv_usec;
+#endif
 
   uint32_t processed = 0;
 
@@ -660,9 +662,11 @@ run (
 
   self->last_amount = *self->amount;
 
+#ifndef RELEASE
   gettimeofday(&tp, NULL);
   ms = (tp.tv_sec * 1000000 + tp.tv_usec) - ms;
   printf("us taken %ld\n", ms);
+#endif
 }
 
 static void
