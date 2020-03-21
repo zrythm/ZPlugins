@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with ZPlugins.  If not, see <https://www.gnu.org/licenses/>.
 
-# name, version
+# name, type, version
 plugins = [
-  ['Chordz', 'MIDIPlugin', '0.2.0'],
-  ['Compressor', 'CompressorPlugin', '0.0.1'],
-  ['Saw', 'InstrumentPlugin', '0.0.1'],
+  ['Chordz', 'MIDIPlugin', '1.0.0'],
+  ['Compressor', 'CompressorPlugin', '1.0.0'],
+  ['Saw', 'InstrumentPlugin', '1.0.0'],
   ]
 
 foreach pl : plugins

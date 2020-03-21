@@ -107,6 +107,7 @@ int main (
     lv2:default %f ;\n\
     lv2:minimum %f ;\n\
     lv2:maximum %f ;\n\
+    lv2:portProperty pprop:logarithmic; \n\
     rdfs:comment \"Compressor attack\" ;\n\
   ] , [\n\
     a lv2:InputPort ,\n\
@@ -117,6 +118,7 @@ int main (
     lv2:default %f ;\n\
     lv2:minimum %f ;\n\
     lv2:maximum %f ;\n\
+    lv2:portProperty pprop:logarithmic; \n\
     rdfs:comment \"Compressor release\" ;\n\
   ] , [\n\
     a lv2:InputPort ,\n\
@@ -153,9 +155,9 @@ int main (
     lv2:name \"Stereo Out R\" ;\n\
   ] .\n",
     /* attack */
-    0.1, 0.0, 10.0,
+    0.1, 0.000001, 10.0,
     /* release */
-    0.1, 0.0, 10.0,
+    0.1, 0.000001, 10.0,
     /* ratio */
     1.0, 1.0, 40.0,
     /* threshold */
