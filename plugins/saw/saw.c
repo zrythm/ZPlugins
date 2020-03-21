@@ -136,9 +136,11 @@ calc_values (
   values->distortion_shape2 = 0.01f + *self->amount * 0.2f;
   values->reverb_mix = 0.01f + *self->amount * 0.5f;
 
+  /* frequency to detune */
+  float detune_factor = 2.2f;
   float freq_delta =
     (*self->amount + 0.4f * (1.f - *self->amount)) *
-    2.4f;
+    detune_factor;
 
   for (int i = 0; i < 128; i++)
     {
@@ -348,7 +350,7 @@ instantiate (
         {
           sp_blsaw_create (&key->blsaws[j]);
           sp_blsaw_init (self->sp, key->blsaws[j]);
-          *key->blsaws[j]->amp = 1.0f;
+          *key->blsaws[j]->amp = 0.3f;
 
 #define COMPUTE(times) \
   for (int k = 0; k < (times); k++) { \
@@ -469,8 +471,9 @@ process (
           !key->pressed)
         continue;
 
-      if (*offset == 0)
-        printf ("computing for key %d\n", i);
+      /*if (*offset == 0)*/
+        /*printf ("computing for key %d\n", i);*/
+
       /* compute adsr */
       SPFLOAT adsr = 0, gate = key->pressed;
       sp_adsr_compute (
@@ -490,8 +493,17 @@ process (
 
               float proximity_to_voice1 =
                 ((float) (7 - j) / 7.f);
+
+              /* add amount * the distance from voice1,
+               * so when the amount is higher, the voice
+               * becomes louder
+               *
+               * multiply by something between 0 and 1 to
+               * adjust */
               proximity_to_voice1 +=
-                *self->amount * (1.f - proximity_to_voice1);
+                *self->amount * (1.f - proximity_to_voice1) *
+                0.9f;
+
               float val =
                 self->sp->out[0] * adsr * proximity_to_voice1;
 
@@ -501,7 +513,11 @@ process (
               if (j % 2 == 0)
                 {
                   *current_l += val * 0.8f;
-                  *current_r += val * 0.2f;
+                  /* spread the first saw more evenly */
+                  if (j == 0)
+                    *current_r += val * 0.64f;
+                  else
+                    *current_r += val * 0.2f;
                 }
               else
                 {
@@ -513,6 +529,10 @@ process (
           key->last_adsr = adsr;
         }
     }
+
+  /* bring the volume down based on the amount */
+  *current_l *= *self->amount * 0.7f + (1.f - *self->amount);
+  *current_r *= *self->amount * 0.7f + (1.f - *self->amount);
 
 #if 0
   /* compress */
