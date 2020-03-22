@@ -19,6 +19,7 @@
 plugins = [
   ['Chordz', 'MIDIPlugin', '1.0.0'],
   ['Compressor', 'CompressorPlugin', '1.0.0'],
+  ['Verb', 'ReverbPlugin', '0.1.0'],
   ['Saw', 'InstrumentPlugin', '1.0.0'],
   ]
 
@@ -68,6 +69,10 @@ foreach pl : plugins
     pl_cdata.get ('PLUGIN_URI'))
   config_h_data.set_quoted (
     'PLUGIN_TYPE', pl_type)
+  config_h_data.set_quoted (
+    'PLUGIN_COMMON', join_paths (pl_lowercase, 'common.h'))
+  config_h_data.set_quoted (
+    'PLUGIN_TTL_H', join_paths (pl_lowercase, 'ttl.h'))
   config_h_data.set_quoted (
     'INSTALL_PATH', pl_dir)
   if get_option('buildtype') == 'release'
@@ -135,10 +140,9 @@ foreach pl : plugins
 
   # create and install ttl
   lv2_ttl_gen = executable (
-    pl_lowercase + 'ttl_gen',
+    pl_lowercase + '_ttl_gen',
     sources: [
-      join_paths (
-        pl_lowercase, 'ttl_gen.c'),
+      'ttl_gen.c'
       ],
     include_directories: pl_inc_dirs,
     dependencies: lv2_dep,

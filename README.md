@@ -9,9 +9,10 @@ Zrythm DAW.
 Plugins
 -------
 
-- **Chordz** - plays chords using white keys
-- **Compressor** - compressor
-- **Saw** - a supersaw synth with 1 parameter
+- **ZChordz** - plays chords using white keys
+- **ZCompressor** - compressor
+- **ZVerb** - reverb based on zita-rev
+- **ZSaw** - a supersaw synth with 1 parameter
 
 Dependencies
 ------------

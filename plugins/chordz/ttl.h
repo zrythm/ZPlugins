@@ -17,31 +17,9 @@
  * along with ZPlugins.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include PLUGIN_CONFIG
-
-#include <stdio.h>
-
-#include "common.h"
-
-int main (
-  int argc, const char* argv[])
+static void
+print_ttl (FILE * f)
 {
-  if (argc != 2)
-    {
-      fprintf (
-        stderr,
-        "Need 1 argument, received %d\n", argc - 1);
-      return -1;
-    }
-
-  FILE * f = fopen (argv[1], "w");
-  if (!f)
-    {
-      fprintf (
-        stderr, "Failed to open file %s\n", argv[1]);
-      return -1;
-    }
-
   fprintf (f,
 "@prefix atom: <http://lv2plug.in/ns/ext/atom#> .\n\
 @prefix doap: <http://usefulinc.com/ns/doap#> .\n\
@@ -198,8 +176,4 @@ int main (
     lv2:name \"MIDI out\" ;\n\
     rdfs:comment \"MIDI output\" ;\n\
   ] .\n\n", CHORDZ_MIDI_OUT);
-
-  fclose (f);
-
-  return 0;
 }
