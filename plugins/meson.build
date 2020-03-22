@@ -19,6 +19,7 @@
 plugins = [
   ['Chordz', 'MIDIPlugin', '1.0.0'],
   ['Compressor', 'CompressorPlugin', '1.0.0'],
+  ['Limiter', 'LimiterPlugin', '0.0.1'],
   ['Verb', 'ReverbPlugin', '0.1.0'],
   ['Saw', 'InstrumentPlugin', '1.0.0'],
   ]

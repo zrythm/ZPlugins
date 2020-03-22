@@ -32,7 +32,7 @@
 
 #include "soundpipe.h"
 
-typedef struct Compressor
+typedef struct Limiter
 {
   /** Plugin ports. */
   const LV2_Atom_Sequence* control;
@@ -41,19 +41,18 @@ typedef struct Compressor
   const float * stereo_in_r;
   const float * attack;
   const float * release;
-  const float * ratio;
   const float * threshold;
 
   /* outputs */
   float *       stereo_out_l;
   float *       stereo_out_r;
 
-  CompressorCommon common;
+  LimiterCommon common;
 
   sp_data *     sp;
-  sp_compressor * compressor;
+  sp_peaklim *  limiter;
 
-} Compressor;
+} Limiter;
 
 static LV2_Handle
 instantiate (
@@ -62,14 +61,14 @@ instantiate (
   const char*               bundle_path,
   const LV2_Feature* const* features)
 {
-  Compressor * self = calloc (1, sizeof (Compressor));
+  Limiter * self = calloc (1, sizeof (Limiter));
 
   SET_SAMPLERATE (self, rate);
 
   PluginCommon * pl_common = &self->common.pl_common;
   int ret =
     plugin_common_instantiate (
-      pl_common, features, 0);
+      pl_common, features, false);
   if (ret)
     goto fail;
 
@@ -97,40 +96,37 @@ connect_port (
   uint32_t   port,
   void *     data)
 {
-  Compressor * self = (Compressor *) instance;
+  Limiter * self = (Limiter *) instance;
 
   switch ((PortIndex) port)
     {
-    case COMPRESSOR_CONTROL:
+    case LIMITER_CONTROL:
       self->control =
         (const LV2_Atom_Sequence *) data;
       break;
-    case COMPRESSOR_NOTIFY:
+    case LIMITER_NOTIFY:
       self->notify =
         (LV2_Atom_Sequence *) data;
       break;
-    case COMPRESSOR_STEREO_IN_L:
+    case LIMITER_STEREO_IN_L:
       self->stereo_in_l = (const float *) data;
       break;
-    case COMPRESSOR_STEREO_IN_R:
+    case LIMITER_STEREO_IN_R:
       self->stereo_in_r = (const float *) data;
       break;
-    case COMPRESSOR_ATTACK:
+    case LIMITER_ATTACK:
       self->attack = (const float *) data;
       break;
-    case COMPRESSOR_RELEASE:
+    case LIMITER_RELEASE:
       self->release = (const float *) data;
       break;
-    case COMPRESSOR_RATIO:
-      self->ratio = (const float *) data;
-      break;
-    case COMPRESSOR_THRESHOLD:
+    case LIMITER_THRESHOLD:
       self->threshold = (const float *) data;
       break;
-    case COMPRESSOR_STEREO_OUT_L:
+    case LIMITER_STEREO_OUT_L:
       self->stereo_out_l = (float *) data;
       break;
-    case COMPRESSOR_STEREO_OUT_R:
+    case LIMITER_STEREO_OUT_R:
       self->stereo_out_r = (float *) data;
       break;
     default:
@@ -142,11 +138,11 @@ static void
 activate (
   LV2_Handle instance)
 {
-  Compressor * self = (Compressor*) instance;
+  Limiter * self = (Limiter*) instance;
 
   sp_create (&self->sp);
-  sp_compressor_create (&self->compressor);
-  sp_compressor_init (self->sp, self->compressor);
+  sp_peaklim_create (&self->limiter);
+  sp_peaklim_init (self->sp, self->limiter);
 }
 
 static void
@@ -154,7 +150,7 @@ run (
   LV2_Handle instance,
   uint32_t n_samples)
 {
-  Compressor * self = (Compressor *) instance;
+  Limiter * self = (Limiter *) instance;
 
 #ifdef TRIAL_VER
   if (get_time_since_instantiation (
@@ -176,19 +172,18 @@ run (
     }
 
   /* compress */
-  *self->compressor->ratio = *self->ratio;
-  *self->compressor->thresh = *self->threshold;
-  *self->compressor->atk = *self->attack;
-  *self->compressor->rel = *self->release;
+  self->limiter->thresh = *self->threshold;
+  self->limiter->atk = *self->attack;
+  self->limiter->rel = *self->release;
   for (uint32_t i = 0; i < n_samples; i++)
     {
       float current_in = self->stereo_in_l[i];
-      sp_compressor_compute (
-        self->sp, self->compressor,
+      sp_peaklim_compute (
+        self->sp, self->limiter,
         &current_in, &self->stereo_out_l[i]);
       current_in = self->stereo_in_r[i];
-      sp_compressor_compute (
-        self->sp, self->compressor,
+      sp_peaklim_compute (
+        self->sp, self->limiter,
         &current_in, &self->stereo_out_r[i]);
     }
 
@@ -203,17 +198,17 @@ static void
 deactivate (
   LV2_Handle instance)
 {
-  Compressor * self = (Compressor *) instance;
+  Limiter * self = (Limiter *) instance;
 
   sp_destroy (&self->sp);
-  sp_compressor_destroy (&self->compressor);
+  sp_peaklim_destroy (&self->limiter);
 }
 
 static void
 cleanup (
   LV2_Handle instance)
 {
-  Compressor * self = (Compressor *) instance;
+  Limiter * self = (Limiter *) instance;
   free (self);
 }
 

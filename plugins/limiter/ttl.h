@@ -86,7 +86,8 @@ print_ttl (FILE * f)
     lv2:minimum %f ;\n\
     lv2:maximum %f ;\n\
     lv2:portProperty pprop:logarithmic; \n\
-    rdfs:comment \"Compressor attack\" ;\n\
+    units:unit units:s ;\n\
+    rdfs:comment \"Attack time\" ;\n\
   ] , [\n\
     a lv2:InputPort ,\n\
       lv2:ControlPort ;\n\
@@ -97,47 +98,36 @@ print_ttl (FILE * f)
     lv2:minimum %f ;\n\
     lv2:maximum %f ;\n\
     lv2:portProperty pprop:logarithmic; \n\
-    rdfs:comment \"Compressor release\" ;\n\
+    units:unit units:s ;\n\
+    rdfs:comment \"Release time\" ;\n\
   ] , [\n\
     a lv2:InputPort ,\n\
       lv2:ControlPort ;\n\
     lv2:index 6 ;\n\
-    lv2:symbol \"ratio\" ;\n\
-    lv2:name \"Ratio\" ;\n\
-    lv2:default %f ;\n\
-    lv2:minimum %f ;\n\
-    lv2:maximum %f ;\n\
-    rdfs:comment \"Ratio to compress with. A value > 1 will compress\" ;\n\
-  ] , [\n\
-    a lv2:InputPort ,\n\
-      lv2:ControlPort ;\n\
-    lv2:index 7 ;\n\
     lv2:symbol \"threshold\" ;\n\
     lv2:name \"Threshold\" ;\n\
     lv2:default %f ;\n\
     lv2:minimum %f ;\n\
     lv2:maximum %f ;\n\
     units:unit units:db ;\n\
-    rdfs:comment \"Threshold (0 = max)\" ;\n\
+    rdfs:comment \"Threshold\" ;\n\
   ] , [\n\
     a lv2:OutputPort ,\n\
       lv2:AudioPort ;\n\
-    lv2:index 8 ;\n\
+    lv2:index 7 ;\n\
     lv2:symbol \"stereo_out_l\" ;\n\
     lv2:name \"Stereo Out L\" ;\n\
   ] , [\n\
     a lv2:OutputPort ,\n\
       lv2:AudioPort ;\n\
-    lv2:index 9 ;\n\
+    lv2:index 8 ;\n\
     lv2:symbol \"stereo_out_r\" ;\n\
     lv2:name \"Stereo Out R\" ;\n\
   ] .\n",
     /* attack */
-    0.1, 0.000001, 10.0,
+    0.01, 0.000001, 1.0,
     /* release */
-    0.1, 0.000001, 10.0,
-    /* ratio */
-    1.0, 1.0, 40.0,
+    0.1, 0.000001, 1.0,
     /* threshold */
-    0.0, -80.0, 0.0);
+    0.0, -40.0, 3.0);
 }

@@ -85,7 +85,7 @@ instantiate (
   PluginCommon * pl_common = &self->common.pl_common;
   int ret =
     plugin_common_instantiate (
-      pl_common, features, 1);
+      pl_common, features, 0);
   if (ret)
     goto fail;
 

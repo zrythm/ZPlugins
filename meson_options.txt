@@ -26,7 +26,7 @@ option (
 option (
   'plugins', type : 'array',
   choices : [
-    'Chordz', 'Compressor', 'Verb', 'Saw'
+    'Chordz', 'Compressor', 'Limiter', 'Verb', 'Saw'
     ],
   description: 'Plugins to build')
 

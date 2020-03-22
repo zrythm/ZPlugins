@@ -21,6 +21,7 @@ soundpipe_module_files = files([
   'blsaw.c',
   'compressor.c',
   'dist.c',
+  'peaklim.c',
   'spa.c',
   'saturator.c',
   'zitarev.c',
