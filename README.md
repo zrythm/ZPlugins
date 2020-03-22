@@ -22,10 +22,16 @@ libsndfile
 Building
 --------
 
+Build and install all plugins
+
     cd ext/Soundpipe && CC=gcc make && cd ../..
     meson build
     ninja -C build
     ninja -C build install
+
+To build specific plugins only, pass their names as below
+
+    meson build -Dplugins=Saw,Verb
 
 License
 -------

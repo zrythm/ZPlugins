@@ -1,28 +1,35 @@
 # Copyright (C) 2020 Alexandros Theodotou <alex at zrythm dot org>
 #
-# This file is part of ZLFO
+# This file is part of ZPlugins
 #
-# ZLFO is free software: you can redistribute it and/or modify
+# ZPlugins is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# ZLFO is distributed in the hope that it will be useful,
+# ZPlugins is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
-# along with ZLFO.  If not, see <https://www.gnu.org/licenses/>.
+# along with ZPlugins.  If not, see <https://www.gnu.org/licenses/>.
 
 option (
-  'strict_flags',
-  type: 'boolean',
-  value: false,
+  'strict_flags', type: 'boolean', value: false,
   description: 'Enable strict compilation flags')
 
 option (
-  'lv2dir',
-  type: 'string',
-  value: 'lib/lv2',
+  'lv2dir', type: 'string', value: 'lib/lv2',
   description: 'LV2 installation dir under the prefix')
+
+option (
+  'plugins', type : 'array',
+  choices : [
+    'Chordz', 'Compressor', 'Verb', 'Saw'
+    ],
+  description: 'Plugins to build')
+
+option (
+  'trial_ver', type: 'boolean', value: false,
+  description: 'Build trial version with limited functionality')

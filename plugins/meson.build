@@ -24,6 +24,8 @@ plugins = [
   ]
 
 foreach pl : plugins
+if get_option ('plugins').contains (pl[0])
+
   pl_str = 'Z' + pl[0]
   pl_caps = pl[0].to_upper ()
   pl_lowercase = pl[0].to_lower ()
@@ -186,4 +188,5 @@ foreach pl : plugins
       'LV2 validate', lv2_validate,
       args: pl_ttl)
   endif
+endif
 endforeach
