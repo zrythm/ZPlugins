@@ -26,9 +26,15 @@ plugins = [
 foreach pl : plugins
 if get_option ('plugins').contains (pl[0])
 
-  pl_str = 'Z' + pl[0]
-  pl_caps = pl[0].to_upper ()
-  pl_lowercase = pl[0].to_lower ()
+  plugin_name = pl[0]
+  plugin_name_for_export = plugin_name
+  if get_option ('trial_ver')
+    plugin_name_for_export = plugin_name + '-trial'
+  endif
+
+  pl_str = 'Z' + plugin_name_for_export
+  pl_caps = plugin_name.to_upper ()
+  pl_lowercase = plugin_name.to_lower ()
   pl_dsp_lib_name_noext = pl_str + '_dsp'
   pl_type = pl[1]
   pl_version = pl[2]
@@ -81,6 +87,10 @@ if get_option ('plugins').contains (pl[0])
     'INSTALL_PATH', pl_dir)
   if get_option('buildtype') == 'release'
     config_h_data.set ('RELEASE', 1)
+  endif
+  if get_option ('trial_ver')
+    config_h_data.set ('TRIAL_VER', 1)
+    config_h_data.set ('SECONDS_TO_SILENCE', 900)
   endif
   config_h_data.set_quoted (
     pl_caps + '_VERSION', pl[1])

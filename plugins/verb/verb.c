@@ -74,31 +74,11 @@ instantiate (
   SET_SAMPLERATE (self, rate);
 
   PluginCommon * pl_common = &self->common.pl_common;
-
-#define HAVE_FEATURE(x) \
-  (!strcmp(features[i]->URI, x))
-
-  for (int i = 0; features[i]; ++i)
-    {
-      if (HAVE_FEATURE (LV2_URID__map))
-        {
-          pl_common->map =
-            (LV2_URID_Map*) features[i]->data;
-        }
-      else if (HAVE_FEATURE (LV2_LOG__log))
-        {
-          pl_common->log =
-            (LV2_Log_Log *) features[i]->data;
-        }
-    }
-#undef HAVE_FEATURE
-
-  if (!pl_common->map)
-    {
-      lv2_log_error (
-        &pl_common->logger, "Missing feature urid:map\n");
-      goto fail;
-    }
+  int ret =
+    plugin_common_instantiate (
+      pl_common, features, 1);
+  if (ret)
+    goto fail;
 
   /* map uris */
   map_uris (pl_common->map, &self->common);
@@ -182,6 +162,12 @@ run (
   uint32_t n_samples)
 {
   Verb * self = (Verb *) instance;
+
+#ifdef TRIAL_VER
+  if (get_time_since_instantiation (
+        &self->common.pl_common) > SECONDS_TO_SILENCE)
+    return;
+#endif
 
 #if 0
   struct timeval tp;

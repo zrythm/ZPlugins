@@ -26,7 +26,13 @@
 #ifndef __Z_COMMON_H__
 #define __Z_COMMON_H__
 
+#include PLUGIN_CONFIG
+
 #include <string.h>
+
+#ifdef TRIAL_VER
+#include <time.h>
+#endif
 
 #include "lv2/atom/atom.h"
 #include "lv2/atom/forge.h"
@@ -90,7 +96,24 @@ typedef struct PluginCommon
   /** Plugin samplerate. */
   double          samplerate;
 
+#ifdef TRIAL_VER
+  clock_t         instantiation_time;
+#endif
+
 } PluginCommon;
+
+#ifdef TRIAL_VER
+static inline double
+get_time_since_instantiation (
+  PluginCommon * pl_common)
+{
+  clock_t end = clock ();
+  return
+    (double)
+    (end - pl_common->instantiation_time) /
+    CLOCKS_PER_SEC;
+}
+#endif
 
 static inline void
 map_common_uris (
@@ -123,6 +146,65 @@ map_common_uris (
   MAP (time_speed, LV2_TIME__speed);
 
 #undef MAP
+}
+
+/**
+ * @param with_worker 1 to add the worker feature.
+ *
+ * @return Non-zero on fail.
+ */
+static inline int
+plugin_common_instantiate (
+  PluginCommon *              pl_common,
+  const LV2_Feature * const * features,
+  int                         with_worker)
+{
+#ifdef TRIAL_VER
+  pl_common->instantiation_time = clock ();
+#endif
+
+#define HAVE_FEATURE(x) \
+  (!strcmp(features[i]->URI, x))
+
+  for (int i = 0; features[i]; ++i)
+    {
+      if (HAVE_FEATURE (LV2_URID__map))
+        {
+          pl_common->map =
+            (LV2_URID_Map*) features[i]->data;
+        }
+      else if (HAVE_FEATURE (LV2_LOG__log))
+        {
+          pl_common->log =
+            (LV2_Log_Log *) features[i]->data;
+        }
+
+      if (with_worker)
+        {
+          if (HAVE_FEATURE (LV2_WORKER__schedule))
+            {
+              pl_common->schedule =
+                (LV2_Worker_Schedule *) features[i]->data;
+            }
+        }
+    }
+#undef HAVE_FEATURE
+
+  if (!pl_common->map)
+    {
+      lv2_log_error (
+        &pl_common->logger, "Missing feature urid:map\n");
+      return -1;
+    }
+  else if (with_worker && !pl_common->schedule)
+    {
+      lv2_log_error (
+        &pl_common->logger,
+        "Missing feature work:schedule\n");
+      return -1;
+    }
+
+  return 0;
 }
 
 /** Gets the samplerate form a plugin or UI. */
