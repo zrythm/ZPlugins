@@ -131,36 +131,4 @@ map_uris (
   //MAP (saw_calcValues, PLUGIN_URI "#calcValues");
 }
 
-#ifndef MAX
-# define MAX(x,y) (x > y ? x : y)
-#endif
-
-#ifndef MIN
-# define MIN(x,y) (x < y ? x : y)
-#endif
-
-#ifndef CLAMP
-# define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
-#endif
-
-/**
- * Rounds a float to a given type.
- */
-#define math_round_float_to_type(x,type) \
-  ((type) (x + 0.5f - (x < 0.f)))
-
-/**
- * Rounds a float to an int.
- */
-#define math_round_float_to_int(x) \
-  math_round_float_to_type (x,int)
-
-/**
- * Checks if 2 floats are equal.
- */
-#define math_floats_equal(a,b) \
-  ((a) > (b) ? \
-   (a) - (b) < FLT_EPSILON : \
-   (b) - (a) < FLT_EPSILON)
-
 #endif

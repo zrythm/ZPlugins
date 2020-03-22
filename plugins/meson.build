@@ -175,9 +175,7 @@ foreach pl : plugins
     test (
       'LV2 lint', lv2lint_wrap,
       args: [
-        lv2lint.path(),
-        pl_build_dir,
-        pl_str,
+        lv2lint.path(), pl_build_dir, pl_str,
         pl_cdata.get('PLUGIN_URI'),
         ])
   endif

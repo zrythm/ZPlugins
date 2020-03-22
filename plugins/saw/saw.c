@@ -25,9 +25,13 @@
 #include <time.h>
 #include <sys/time.h>
 
+#include "../math.h"
 #include "common.h"
 
 #include "soundpipe.h"
+
+/* for some reason it needs to be declared */
+float powf(float dummy0, float dummy1);
 
 typedef struct MidiKey
 {
