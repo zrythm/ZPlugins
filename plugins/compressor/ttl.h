@@ -75,7 +75,7 @@ print_ttl (FILE * f)
       lv2:AudioPort ;\n\
     lv2:index 3 ;\n\
     lv2:symbol \"stereo_in_r\" ;\n\
-    lv2:name \"Stereo In L\" ;\n\
+    lv2:name \"Stereo In R\" ;\n\
   ] , [\n\
     a lv2:InputPort ,\n\
       lv2:ControlPort ;\n\

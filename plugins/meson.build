@@ -70,7 +70,9 @@ foreach pl : plugins
   config_h_data.set_quoted (
     'PLUGIN_TYPE', pl_type)
   config_h_data.set_quoted (
-    'PLUGIN_COMMON', join_paths (pl_lowercase, 'common.h'))
+    'PLUGIN_COMMON',
+    join_paths (
+      pl_lowercase, pl_lowercase + '_common.h'))
   config_h_data.set_quoted (
     'PLUGIN_TTL_H', join_paths (pl_lowercase, 'ttl.h'))
   config_h_data.set_quoted (

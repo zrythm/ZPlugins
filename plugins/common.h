@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018, 2020 Alexandros Theodotou <alex at zrythm dot org>
+ * Copyright (C) 2020 Alexandros Theodotou <alex at zrythm dot org>
  *
  * This file is part of ZPlugins
  *
@@ -23,10 +23,8 @@
  * Common code for both the DSP and the UI.
  */
 
-#ifndef __Z_CHORDZ_COMMON_H__
-#define __Z_CHORDZ_COMMON_H__
-
-#include PLUGIN_CONFIG
+#ifndef __Z_COMMON_H__
+#define __Z_COMMON_H__
 
 #include <string.h>
 
@@ -40,7 +38,7 @@
 #include "lv2/time/time.h"
 #include "lv2/worker/worker.h"
 
-typedef struct ChordzUris
+typedef struct PluginUris
 {
   LV2_URID atom_eventTransfer;
   LV2_URID atom_Blank;
@@ -63,54 +61,13 @@ typedef struct ChordzUris
   LV2_URID time_frame;
   LV2_URID time_speed;
 
-} ChordzUris;
-
-typedef enum PortIndex
-{
-  /** GUI to plugin communication. */
-  CHORDZ_CONTROL,
-  /** Plugin to UI communication. */
-  CHORDZ_NOTIFY,
-
-  CHORDZ_SCALE,
-  CHORDZ_MAJOR,
-  CHORDZ_BASS,
-  CHORDZ_FIRST,
-  CHORDZ_THIRD,
-  CHORDZ_FIFTH,
-  CHORDZ_SEVENTH,
-  CHORDZ_OCTAVE,
-  CHORDZ_NINTH,
-  CHORDZ_ELEVENTH,
-  CHORDZ_THIRTEENTH,
-
-  /** Outputs. */
-  CHORDZ_MIDI_OUT,
-
-  NUM_PORTS,
-} PortIndex;
-
-typedef enum ChordzScales
-{
-  SCALE_C,
-  SCALE_CS,
-  SCALE_D,
-  SCALE_DS,
-  SCALE_E,
-  SCALE_F,
-  SCALE_FS,
-  SCALE_G,
-  SCALE_GS,
-  SCALE_A,
-  SCALE_AS,
-  SCALE_B
-} ChordzScales;
+} PluginUris;
 
 /**
- * Group of variables needed by both the DSP and
- * the UI.
+ * Group of variables needed by all plugins and their
+ * UIs.
  */
-typedef struct ChordzCommon
+typedef struct PluginCommon
 {
   /** Log feature. */
   LV2_Log_Log *   log;
@@ -121,21 +78,24 @@ typedef struct ChordzCommon
   /** Logger convenience API. */
   LV2_Log_Logger  logger;
 
+  /** Worker schedule feature. */
+  LV2_Worker_Schedule* schedule;
+
   /** Atom forge. */
   LV2_Atom_Forge  forge;
 
   /** URIs. */
-  ChordzUris         uris;
+  PluginUris      uris;
 
   /** Plugin samplerate. */
   double          samplerate;
 
-} ChordzCommon;
+} PluginCommon;
 
 static inline void
-map_uris (
+map_common_uris (
   LV2_URID_Map* map,
-  ChordzUris* uris)
+  PluginUris* uris)
 {
 #define MAP(x,uri) \
   uris->x = map->map (map->handle, uri)
@@ -157,15 +117,32 @@ map_uris (
   MAP (time_Position, LV2_TIME__Position);
   MAP (time_bar, LV2_TIME__bar);
   MAP (time_barBeat, LV2_TIME__barBeat);
-  MAP (
-    time_beatsPerMinute, LV2_TIME__beatsPerMinute);
+  MAP (time_beatsPerMinute, LV2_TIME__beatsPerMinute);
   MAP (time_beatUnit, LV2_TIME__beatUnit);
   MAP (time_frame, LV2_TIME__frame);
   MAP (time_speed, LV2_TIME__speed);
 
-  /* custom URIs */
-  //MAP (saw_freeValues, PLUGIN_URI "#freeValues");
-  //MAP (saw_calcValues, PLUGIN_URI "#calcValues");
+#undef MAP
 }
+
+/** Gets the samplerate form a plugin or UI. */
+#define GET_SAMPLERATE(_x) \
+  ((_x)->common.pl_common.samplerate)
+
+/** Gets the samplerate form a plugin or UI. */
+#define SET_SAMPLERATE(_x,rate) \
+  ((_x)->common.pl_common.samplerate = rate)
+
+#define PL_URIS(_x) \
+  (&(_x)->common.pl_common.uris)
+
+#define URIS(_x) \
+  (&(_x)->common.uris)
+
+#define SCHEDULE(_x) \
+  ((_x)->common.pl_common.schedule)
+
+#define FORGE(_x) \
+  (&(_x)->common.pl_common.forge)
 
 #endif

@@ -17,6 +17,8 @@
  * along with ZPlugins.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include PLUGIN_CONFIG
+
 #include <float.h>
 #include <math.h>
 #include <stdlib.h>
@@ -26,7 +28,7 @@
 #include <sys/time.h>
 
 #include "../math.h"
-#include "common.h"
+#include PLUGIN_COMMON
 
 #include "soundpipe.h"
 
@@ -62,7 +64,9 @@ instantiate (
 {
   Compressor * self = calloc (1, sizeof (Compressor));
 
-  self->common.samplerate = rate;
+  SET_SAMPLERATE (self, rate);
+
+  PluginCommon * pl_common = &self->common.pl_common;
 
 #define HAVE_FEATURE(x) \
   (!strcmp(features[i]->URI, x))
@@ -71,34 +75,34 @@ instantiate (
     {
       if (HAVE_FEATURE (LV2_URID__map))
         {
-          self->common.map =
+          pl_common->map =
             (LV2_URID_Map*) features[i]->data;
         }
       else if (HAVE_FEATURE (LV2_LOG__log))
         {
-          self->common.log =
+          pl_common->log =
             (LV2_Log_Log *) features[i]->data;
         }
     }
 #undef HAVE_FEATURE
 
-  if (!self->common.map)
+  if (!pl_common->map)
     {
       lv2_log_error (
-        &self->common.logger, "Missing feature urid:map\n");
+        &pl_common->logger, "Missing feature urid:map\n");
       goto fail;
     }
 
   /* map uris */
-  map_uris (self->common.map, &self->common.uris);
+  map_uris (pl_common->map, &self->common);
 
   /* init atom forge */
   lv2_atom_forge_init (
-    &self->common.forge, self->common.map);
+    &pl_common->forge, pl_common->map);
 
   /* init logger */
   lv2_log_logger_init (
-    &self->common.logger, self->common.map, self->common.log);
+    &pl_common->logger, pl_common->map, pl_common->log);
 
   return (LV2_Handle) self;
 

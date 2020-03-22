@@ -75,69 +75,167 @@ print_ttl (FILE * f)
       lv2:AudioPort ;\n\
     lv2:index 3 ;\n\
     lv2:symbol \"stereo_in_r\" ;\n\
-    lv2:name \"Stereo In L\" ;\n\
-  ] , [\n\
+    lv2:name \"Stereo In R\" ;\n\
+  ] , [\n");
+
+  fprintf (f, "\
     a lv2:InputPort ,\n\
       lv2:ControlPort ;\n\
     lv2:index 4 ;\n\
-    lv2:symbol \"attack\" ;\n\
-    lv2:name \"Attack\" ;\n\
+    lv2:symbol \"in_delay\" ;\n\
+    lv2:name \"Pre-delay\" ;\n\
     lv2:default %f ;\n\
     lv2:minimum %f ;\n\
     lv2:maximum %f ;\n\
-    lv2:portProperty pprop:logarithmic; \n\
-    rdfs:comment \"Compressor attack\" ;\n\
+    units:unit units:ms ;\n\
+    rdfs:comment \"Delay in ms before reverberation begins\" ;\n\
   ] , [\n\
     a lv2:InputPort ,\n\
       lv2:ControlPort ;\n\
     lv2:index 5 ;\n\
-    lv2:symbol \"release\" ;\n\
-    lv2:name \"Release\" ;\n\
+    lv2:symbol \"lf_x\" ;\n\
+    lv2:name \"Low freq crossover\" ;\n\
     lv2:default %f ;\n\
     lv2:minimum %f ;\n\
     lv2:maximum %f ;\n\
     lv2:portProperty pprop:logarithmic; \n\
-    rdfs:comment \"Compressor release\" ;\n\
+    units:unit units:hz ;\n\
+    rdfs:comment \"Crossover frequency separating low and middle frequencies\" ;\n\
   ] , [\n\
     a lv2:InputPort ,\n\
       lv2:ControlPort ;\n\
     lv2:index 6 ;\n\
-    lv2:symbol \"ratio\" ;\n\
-    lv2:name \"Ratio\" ;\n\
+    lv2:symbol \"rt60_low\" ;\n\
+    lv2:name \"Low freq decay\" ;\n\
     lv2:default %f ;\n\
     lv2:minimum %f ;\n\
     lv2:maximum %f ;\n\
-    rdfs:comment \"Ratio to compress with. A value > 1 will compress\" ;\n\
+    units:unit units:s ;\n\
+    rdfs:comment \"Time to decay 60db in low-frequency band\" ;\n\
   ] , [\n\
     a lv2:InputPort ,\n\
       lv2:ControlPort ;\n\
     lv2:index 7 ;\n\
-    lv2:symbol \"threshold\" ;\n\
-    lv2:name \"Threshold\" ;\n\
+    lv2:symbol \"rt60_mid\" ;\n\
+    lv2:name \"Mid freq decay\" ;\n\
+    lv2:default %f ;\n\
+    lv2:minimum %f ;\n\
+    lv2:maximum %f ;\n\
+    units:unit units:s ;\n\
+    rdfs:comment \"Time to decay 60db in mid-frequency band\" ;\n\
+  ] , [\n\
+    a lv2:InputPort ,\n\
+      lv2:ControlPort ;\n\
+    lv2:index 8 ;\n\
+    lv2:symbol \"hf_damping\" ;\n\
+    lv2:name \"High freq damping\" ;\n\
+    lv2:default %f ;\n\
+    lv2:minimum %f ;\n\
+    lv2:maximum %f ;\n\
+    lv2:portProperty pprop:logarithmic; \n\
+    units:unit units:hz ;\n\
+    rdfs:comment \"Frequency at which the high-frequency T60 is half the middle-band's T60\" ;\n\
+  ] , [\n\
+    a lv2:InputPort ,\n\
+      lv2:ControlPort ;\n\
+    lv2:index 9 ;\n\
+    lv2:symbol \"eq1_freq\" ;\n\
+    lv2:name \"EQ1 freq\" ;\n\
+    lv2:default %f ;\n\
+    lv2:minimum %f ;\n\
+    lv2:maximum %f ;\n\
+    lv2:portProperty pprop:logarithmic; \n\
+    units:unit units:hz ;\n\
+    rdfs:comment \"Center frequency of second-order Regalia Mitra peaking equalizer section 1\" ;\n\
+  ] , [\n\
+    a lv2:InputPort ,\n\
+      lv2:ControlPort ;\n\
+    lv2:index 10 ;\n\
+    lv2:symbol \"eq1_level\" ;\n\
+    lv2:name \"EQ1 level\" ;\n\
     lv2:default %f ;\n\
     lv2:minimum %f ;\n\
     lv2:maximum %f ;\n\
     units:unit units:db ;\n\
-    rdfs:comment \"Threshold (in dB) 0 = max\" ;\n\
+    rdfs:comment \"Peak level of second-order Regalia-Mitra peaking equalizer section 1\" ;\n\
+  ] , [\n\
+    a lv2:InputPort ,\n\
+      lv2:ControlPort ;\n\
+    lv2:index 11 ;\n\
+    lv2:symbol \"eq2_freq\" ;\n\
+    lv2:name \"EQ2 freq\" ;\n\
+    lv2:default %f ;\n\
+    lv2:minimum %f ;\n\
+    lv2:maximum %f ;\n\
+    lv2:portProperty pprop:logarithmic; \n\
+    units:unit units:hz ;\n\
+    rdfs:comment \"Center frequency of second-order Regalia Mitra peaking equalizer section 2\" ;\n\
+  ] , [\n\
+    a lv2:InputPort ,\n\
+      lv2:ControlPort ;\n\
+    lv2:index 12 ;\n\
+    lv2:symbol \"eq2_level\" ;\n\
+    lv2:name \"EQ2 level\" ;\n\
+    lv2:default %f ;\n\
+    lv2:minimum %f ;\n\
+    lv2:maximum %f ;\n\
+    units:unit units:db ;\n\
+    rdfs:comment \"Peak level of second-order Regalia-Mitra peaking equalizer section 2\" ;\n\
+  ] , [\n\
+    a lv2:InputPort ,\n\
+      lv2:ControlPort ;\n\
+    lv2:index 13 ;\n\
+    lv2:symbol \"wet\" ;\n\
+    lv2:name \"Wet\" ;\n\
+    lv2:default %f ;\n\
+    lv2:minimum %f ;\n\
+    lv2:maximum %f ;\n\
+    rdfs:comment \"0 = all dry, 1 = all wet\" ;\n\
+  ] , [\n\
+    a lv2:InputPort ,\n\
+      lv2:ControlPort ;\n\
+    lv2:index 14 ;\n\
+    lv2:symbol \"level\" ;\n\
+    lv2:name \"Level\" ;\n\
+    lv2:default %f ;\n\
+    lv2:minimum %f ;\n\
+    lv2:maximum %f ;\n\
+    units:unit units:db ;\n\
+    rdfs:comment \"Output scale factor\" ;\n\
   ] , [\n\
     a lv2:OutputPort ,\n\
       lv2:AudioPort ;\n\
-    lv2:index 8 ;\n\
+    lv2:index 15 ;\n\
     lv2:symbol \"stereo_out_l\" ;\n\
     lv2:name \"Stereo Out L\" ;\n\
   ] , [\n\
     a lv2:OutputPort ,\n\
       lv2:AudioPort ;\n\
-    lv2:index 9 ;\n\
+    lv2:index 16 ;\n\
     lv2:symbol \"stereo_out_r\" ;\n\
     lv2:name \"Stereo Out R\" ;\n\
   ] .\n",
-    /* attack */
-    0.1, 0.000001, 10.0,
-    /* release */
-    0.1, 0.000001, 10.0,
-    /* ratio */
-    1.0, 1.0, 40.0,
-    /* threshold */
-    0.0, -80.0, 0.0);
+    /* predelay */
+    40.0, 10.0, 100.0,
+    /* low freq crossover */
+    200.0, 50.0, 1000.0,
+    /* decay low */
+    3.0, 1.0, 8.0,
+    /* decay mid */
+    2.0, 1.0, 8.0,
+    /* hf damping */
+    6000.0, 1500.0, 47040.0,
+    /* eq1 freq */
+    315.0, 40.0, 2500.0,
+    /* eq1 level */
+    0.0, -15.0, 15.0,
+    /* eq2 freq */
+    1500.0, 160.0, 12000.0,
+    /* eq2 level */
+    0.0, -15.0, 15.0,
+    /* wet */
+    1.0, 0.0, 1.0,
+    /* level */
+    -20.0, -70.0, 20.0
+    );
 }

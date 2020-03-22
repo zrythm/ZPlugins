@@ -17,6 +17,8 @@
  * along with ZPlugins.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include PLUGIN_CONFIG
+
 #include <float.h>
 #include <math.h>
 #include <stdlib.h>
@@ -26,32 +28,39 @@
 #include <sys/time.h>
 
 #include "../math.h"
-#include "common.h"
+#include PLUGIN_COMMON
 
 #include "soundpipe.h"
 
-typedef struct Compressor
+typedef struct Verb
 {
   /** Plugin ports. */
   const LV2_Atom_Sequence* control;
   LV2_Atom_Sequence* notify;
   const float * stereo_in_l;
   const float * stereo_in_r;
-  const float * attack;
-  const float * release;
-  const float * ratio;
-  const float * threshold;
+  const float * predelay;
+  const float * low_freq_x;
+  const float * decay_60_low;
+  const float * decay_60_mid;
+  const float * hf_damping;
+  const float * eq1_freq;
+  const float * eq1_level;
+  const float * eq2_freq;
+  const float * eq2_level;
+  const float * wet;
+  const float * level;
 
   /* outputs */
   float *       stereo_out_l;
   float *       stereo_out_r;
 
-  CompressorCommon common;
+  VerbCommon common;
 
   sp_data *     sp;
-  sp_compressor * compressor;
+  sp_zitarev *  rev;
 
-} Compressor;
+} Verb;
 
 static LV2_Handle
 instantiate (
@@ -60,9 +69,11 @@ instantiate (
   const char*               bundle_path,
   const LV2_Feature* const* features)
 {
-  Compressor * self = calloc (1, sizeof (Compressor));
+  Verb * self = calloc (1, sizeof (Verb));
 
-  self->common.samplerate = rate;
+  SET_SAMPLERATE (self, rate);
+
+  PluginCommon * pl_common = &self->common.pl_common;
 
 #define HAVE_FEATURE(x) \
   (!strcmp(features[i]->URI, x))
@@ -71,34 +82,34 @@ instantiate (
     {
       if (HAVE_FEATURE (LV2_URID__map))
         {
-          self->common.map =
+          pl_common->map =
             (LV2_URID_Map*) features[i]->data;
         }
       else if (HAVE_FEATURE (LV2_LOG__log))
         {
-          self->common.log =
+          pl_common->log =
             (LV2_Log_Log *) features[i]->data;
         }
     }
 #undef HAVE_FEATURE
 
-  if (!self->common.map)
+  if (!pl_common->map)
     {
       lv2_log_error (
-        &self->common.logger, "Missing feature urid:map\n");
+        &pl_common->logger, "Missing feature urid:map\n");
       goto fail;
     }
 
   /* map uris */
-  map_uris (self->common.map, &self->common.uris);
+  map_uris (pl_common->map, &self->common);
 
   /* init atom forge */
   lv2_atom_forge_init (
-    &self->common.forge, self->common.map);
+    &pl_common->forge, pl_common->map);
 
   /* init logger */
   lv2_log_logger_init (
-    &self->common.logger, self->common.map, self->common.log);
+    &pl_common->logger, pl_common->map, pl_common->log);
 
   return (LV2_Handle) self;
 
@@ -113,40 +124,40 @@ connect_port (
   uint32_t   port,
   void *     data)
 {
-  Compressor * self = (Compressor *) instance;
+  Verb * self = (Verb *) instance;
+
+#define SET_FLOAT_INPUT(caps,sc) \
+  case VERB_##caps: \
+    self->sc = (const float *) data; \
+    break
 
   switch ((PortIndex) port)
     {
-    case COMPRESSOR_CONTROL:
+    case VERB_CONTROL:
       self->control =
         (const LV2_Atom_Sequence *) data;
       break;
-    case COMPRESSOR_NOTIFY:
+    case VERB_NOTIFY:
       self->notify =
         (LV2_Atom_Sequence *) data;
       break;
-    case COMPRESSOR_STEREO_IN_L:
-      self->stereo_in_l = (const float *) data;
-      break;
-    case COMPRESSOR_STEREO_IN_R:
-      self->stereo_in_r = (const float *) data;
-      break;
-    case COMPRESSOR_ATTACK:
-      self->attack = (const float *) data;
-      break;
-    case COMPRESSOR_RELEASE:
-      self->release = (const float *) data;
-      break;
-    case COMPRESSOR_RATIO:
-      self->ratio = (const float *) data;
-      break;
-    case COMPRESSOR_THRESHOLD:
-      self->threshold = (const float *) data;
-      break;
-    case COMPRESSOR_STEREO_OUT_L:
+    SET_FLOAT_INPUT (STEREO_IN_L, stereo_in_l);
+    SET_FLOAT_INPUT (STEREO_IN_R, stereo_in_r);
+    SET_FLOAT_INPUT (PREDELAY, predelay);
+    SET_FLOAT_INPUT (LOW_FREQ_CROSSOVER, low_freq_x);
+    SET_FLOAT_INPUT (DECAY_60_LOW, decay_60_low);
+    SET_FLOAT_INPUT (DECAY_60_MID, decay_60_mid);
+    SET_FLOAT_INPUT (HF_DAMPING, hf_damping);
+    SET_FLOAT_INPUT (EQ1_FREQ, eq1_freq);
+    SET_FLOAT_INPUT (EQ1_LEVEL, eq1_level);
+    SET_FLOAT_INPUT (EQ2_FREQ, eq2_freq);
+    SET_FLOAT_INPUT (EQ2_LEVEL, eq2_level);
+    SET_FLOAT_INPUT (WET, wet);
+    SET_FLOAT_INPUT (LEVEL, level);
+    case VERB_STEREO_OUT_L:
       self->stereo_out_l = (float *) data;
       break;
-    case COMPRESSOR_STEREO_OUT_R:
+    case VERB_STEREO_OUT_R:
       self->stereo_out_r = (float *) data;
       break;
     default:
@@ -158,11 +169,11 @@ static void
 activate (
   LV2_Handle instance)
 {
-  Compressor * self = (Compressor*) instance;
+  Verb * self = (Verb*) instance;
 
   sp_create (&self->sp);
-  sp_compressor_create (&self->compressor);
-  sp_compressor_init (self->sp, self->compressor);
+  sp_zitarev_create (&self->rev);
+  sp_zitarev_init (self->sp, self->rev);
 }
 
 static void
@@ -170,9 +181,9 @@ run (
   LV2_Handle instance,
   uint32_t n_samples)
 {
-  Compressor * self = (Compressor *) instance;
+  Verb * self = (Verb *) instance;
 
-#ifndef RELEASE
+#if 0
   struct timeval tp;
   gettimeofday(&tp, NULL);
   long int ms = tp.tv_sec * 1000000 + tp.tv_usec;
@@ -186,23 +197,29 @@ run (
     }
 
   /* compress */
-  *self->compressor->ratio = *self->ratio;
-  *self->compressor->thresh = *self->threshold;
-  *self->compressor->atk = *self->attack;
-  *self->compressor->rel = *self->release;
+  *self->rev->in_delay = *self->predelay;
+  *self->rev->lf_x = *self->low_freq_x;
+  *self->rev->rt60_low = *self->decay_60_low;
+  *self->rev->rt60_mid = *self->decay_60_mid;
+  *self->rev->hf_damping = *self->hf_damping;
+  *self->rev->eq1_freq = *self->eq1_freq;
+  *self->rev->eq1_level = *self->eq1_level;
+  *self->rev->eq2_freq = *self->eq2_freq;
+  *self->rev->eq2_level = *self->eq2_level;
+  *self->rev->mix = *self->wet;
+  *self->rev->level = *self->level;
   for (uint32_t i = 0; i < n_samples; i++)
     {
-      float current_in = self->stereo_in_l[i];
-      sp_compressor_compute (
-        self->sp, self->compressor,
-        &current_in, &self->stereo_out_l[i]);
-      current_in = self->stereo_in_r[i];
-      sp_compressor_compute (
-        self->sp, self->compressor,
-        &current_in, &self->stereo_out_r[i]);
+      float current_in[2] = {
+        self->stereo_in_l[i], self->stereo_in_r[i],
+      };
+      sp_zitarev_compute (
+        self->sp, self->rev,
+        &current_in[0], &current_in[1],
+        &self->stereo_out_l[i], &self->stereo_out_r[i]);
     }
 
-#ifndef RELEASE
+#if 0
   gettimeofday(&tp, NULL);
   ms = (tp.tv_sec * 1000000 + tp.tv_usec) - ms;
   printf("us taken %ld\n", ms);
@@ -213,17 +230,17 @@ static void
 deactivate (
   LV2_Handle instance)
 {
-  Compressor * self = (Compressor *) instance;
+  Verb * self = (Verb *) instance;
 
   sp_destroy (&self->sp);
-  sp_compressor_destroy (&self->compressor);
+  sp_zitarev_destroy (&self->rev);
 }
 
 static void
 cleanup (
   LV2_Handle instance)
 {
-  Compressor * self = (Compressor *) instance;
+  Verb * self = (Verb *) instance;
   free (self);
 }
 

@@ -17,6 +17,8 @@
  * along with ZSaw.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include PLUGIN_CONFIG
+
 #include <float.h>
 #include <math.h>
 #include <stdlib.h>
@@ -26,7 +28,7 @@
 #include <sys/time.h>
 
 #include "../math.h"
-#include "common.h"
+#include PLUGIN_COMMON
 
 #include "soundpipe.h"
 
@@ -276,8 +278,8 @@ work_response (
       self->common.uris.saw_freeValues },
     values };
 
-  self->common.schedule->schedule_work (
-    self->common.schedule->handle,
+  SCHEDULE (self)->schedule_work (
+    SCHEDULE (self)->handle,
     sizeof (msg), &msg);
   /*lv2_log_note (*/
     /*&self->common.logger, "inside work response\n");*/
@@ -294,7 +296,9 @@ instantiate (
 {
   Saw * self = calloc (1, sizeof (Saw));
 
-  self->common.samplerate = rate;
+  SET_SAMPLERATE (self, rate);
+
+  PluginCommon * pl_common = &self->common.pl_common;
 
 #define HAVE_FEATURE(x) \
   (!strcmp(features[i]->URI, x))
@@ -303,46 +307,46 @@ instantiate (
     {
       if (HAVE_FEATURE (LV2_URID__map))
         {
-          self->common.map =
+          pl_common->map =
             (LV2_URID_Map*) features[i]->data;
         }
       else if (HAVE_FEATURE (LV2_WORKER__schedule))
         {
-          self->common.schedule =
+          pl_common->schedule =
             (LV2_Worker_Schedule *) features[i]->data;
         }
       else if (HAVE_FEATURE (LV2_LOG__log))
         {
-          self->common.log =
+          pl_common->log =
             (LV2_Log_Log *) features[i]->data;
         }
     }
 #undef HAVE_FEATURE
 
-  if (!self->common.map)
+  if (!pl_common->map)
     {
       lv2_log_error (
-        &self->common.logger, "Missing feature urid:map\n");
+        &pl_common->logger, "Missing feature urid:map\n");
       goto fail;
     }
-  else if (!self->common.schedule)
+  else if (!pl_common->schedule)
     {
       lv2_log_error (
-        &self->common.logger,
+        &pl_common->logger,
         "Missing feature work:schedule\n");
       goto fail;
     }
 
   /* map uris */
-  map_uris (self->common.map, &self->common.uris);
+  map_uris (pl_common->map, &self->common);
 
   /* init atom forge */
   lv2_atom_forge_init (
-    &self->common.forge, self->common.map);
+    &pl_common->forge, pl_common->map);
 
   /* init logger */
   lv2_log_logger_init (
-    &self->common.logger, self->common.map, self->common.log);
+    &pl_common->logger, pl_common->map, pl_common->log);
 
   /* create synth */
   srand (time (NULL));
@@ -612,8 +616,8 @@ run (
           self->common.uris.saw_calcValues }
       };
 
-      self->common.schedule->schedule_work (
-        self->common.schedule->handle,
+      SCHEDULE (self)->schedule_work (
+        SCHEDULE (self)->handle,
         sizeof (msg), &msg);
       /*lv2_log_note (*/
         /*&self->common.logger, "scheduled to recalculate\n");*/
@@ -623,8 +627,7 @@ run (
   LV2_ATOM_SEQUENCE_FOREACH (
     self->control, ev)
     {
-      if (ev->body.type ==
-            self->common.uris.midi_MidiEvent)
+      if (ev->body.type == PL_URIS (self)->midi_MidiEvent)
         {
           const uint8_t * const msg =
             (const uint8_t *) (ev + 1);
@@ -665,7 +668,7 @@ run (
             }
         }
       if (lv2_atom_forge_is_object_type (
-            &self->common.forge, ev->body.type))
+            FORGE (self), ev->body.type))
         {
           const LV2_Atom_Object * obj =
             (const LV2_Atom_Object*)&ev->body;

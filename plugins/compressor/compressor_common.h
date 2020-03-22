@@ -23,38 +23,15 @@
  * Common code for both the DSP and the UI.
  */
 
-#ifndef __Z_COMMON_H__
-#define __Z_COMMON_H__
+#ifndef __Z_COMPRESSOR_COMMON_H__
+#define __Z_COMPRESSOR_COMMON_H__
 
 #include PLUGIN_CONFIG
 
-#include <string.h>
-
-#include "lv2/atom/atom.h"
-#include "lv2/atom/forge.h"
-#include "lv2/core/lv2.h"
-#include "lv2/log/log.h"
-#include "lv2/log/logger.h"
-#include "lv2/midi/midi.h"
-#include "lv2/urid/urid.h"
-#include "lv2/time/time.h"
-#include "lv2/worker/worker.h"
+#include "../common.h"
 
 typedef struct CompressorUris
 {
-  LV2_URID atom_eventTransfer;
-  LV2_URID atom_Blank;
-  LV2_URID atom_Object;
-  LV2_URID atom_Float;
-  LV2_URID atom_Double;
-  LV2_URID atom_Int;
-  LV2_URID atom_Long;
-  LV2_URID log_Entry;
-  LV2_URID log_Error;
-  LV2_URID log_Note;
-  LV2_URID log_Trace;
-  LV2_URID log_Warning;
-
 } CompressorUris;
 
 typedef enum PortIndex
@@ -84,51 +61,28 @@ typedef enum PortIndex
  */
 typedef struct CompressorCommon
 {
-  /** Log feature. */
-  LV2_Log_Log *   log;
-
-  /** Map feature. */
-  LV2_URID_Map *  map;
-
-  /** Logger convenience API. */
-  LV2_Log_Logger  logger;
-
-  /** Atom forge. */
-  LV2_Atom_Forge  forge;
-
   /** URIs. */
   CompressorUris  uris;
 
-  /** Plugin samplerate. */
-  double          samplerate;
+  PluginCommon    pl_common;
 
 } CompressorCommon;
 
 static inline void
 map_uris (
-  LV2_URID_Map* map,
-  CompressorUris* uris)
+  LV2_URID_Map*      urid_map,
+  CompressorCommon * compressor_common)
 {
-#define MAP(x,uri) \
-  uris->x = map->map (map->handle, uri)
+  map_common_uris (
+    urid_map, &compressor_common->pl_common.uris);
 
-  /* official URIs */
-  MAP (atom_Blank, LV2_ATOM__Blank);
-  MAP (atom_Object, LV2_ATOM__Object);
-  MAP (atom_Float, LV2_ATOM__Float);
-  MAP (atom_Double, LV2_ATOM__Double);
-  MAP (atom_Int, LV2_ATOM__Int);
-  MAP (atom_Long, LV2_ATOM__Long);
-  MAP (atom_eventTransfer, LV2_ATOM__eventTransfer);
-  MAP (log_Entry, LV2_LOG__Entry);
-  MAP (log_Error, LV2_LOG__Error);
-  MAP (log_Note, LV2_LOG__Note);
-  MAP (log_Trace, LV2_LOG__Trace);
-  MAP (log_Warning, LV2_LOG__Warning);
+#define MAP(x,uri) \
+  compressor_common->uris.x = \
+    urid_map->map (urid_map->handle, uri)
 
   /* custom URIs */
-  //MAP (saw_freeValues, PLUGIN_URI "#freeValues");
-  //MAP (saw_calcValues, PLUGIN_URI "#calcValues");
+
+#undef MAP
 }
 
 #endif
