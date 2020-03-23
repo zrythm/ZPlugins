@@ -95,7 +95,7 @@ Collection of LV2 plugins to be bundled with Zrythm
     lv2:~a ;
   lv2:binary <~a> ;
 " plugin-uri plugin-type dsp-binary)
-         (if (eq? (arg-exists ui-uri) #t)
+         (if (arg-exists ui-uri)
            (format #t "  ui:ui <~a> ;\n"
                    ui-uri))
          (format #t "  lv2:minorVersion ~a;
@@ -105,7 +105,7 @@ Collection of LV2 plugins to be bundled with Zrythm
 " minor-ver micro-ver plugin-ttl)
 
          ;; print UI URI
-         (if (eq? (arg-exists ui-uri) #t)
+         (if (arg-exists ui-uri)
            (format #t "<~a>
   a ui:~a ;
   ui:binary <~a> ;
@@ -115,7 +115,7 @@ Collection of LV2 plugins to be bundled with Zrythm
 " ui-uri ui-type ui-binary plugin-ttl))
 
          ;; add presets
-         (if (eq? (file-exists? presets-file) #t)
+         (if (file-exists? presets-file)
            (cons
              (newline)
              (with-input-from-file presets-file

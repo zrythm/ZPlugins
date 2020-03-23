@@ -30,7 +30,7 @@ plugins = [
 fs = import('fs')
 guile = find_program ('guile')
 ztoolkit_dep = dependency(
-  'ztoolkit', version: '== 0.1.1',
+  'ztoolkit', version: '>= 0.1.1',
   fallback: ['ztoolkit', 'ztoolkit_dep'],
   default_options: ['enable_rsvg=true'])
 

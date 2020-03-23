@@ -11,12 +11,13 @@ packages:
   - lv2
   - libsndfile
   - guile
+  - gmake
 sources:
   - https://git.sr.ht/~alextee/zplugins
 tasks:
   - setup: |
       cd zplugins
-      cd ext/Soundpipe && CC=gcc make && cd ../..
+      cd ext/Soundpipe && gmake && cd ../..
       meson build
   - build: |
       cd zplugins
