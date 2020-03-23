@@ -26,6 +26,24 @@
 #ifndef __ZPLUGINS_MATH_UTILS_H__
 #define __ZPLUGINS_MATH_UTILS_H__
 
+#include <float.h>
+#include <math.h>
+
+#ifndef M_PI
+# define M_PI 3.14159265358979323846
+#endif
+#ifndef powf
+float powf (float dummy0, float dummy1);
+#endif
+#ifndef pow
+double pow (double dummy0, double dummy1);
+#endif
+#ifndef sinf
+float sinf (float dummy0);
+#endif
+
+static const float PI = (float) M_PI;
+
 #ifndef MAX
 # define MAX(x,y) (x > y ? x : y)
 #endif
@@ -57,5 +75,16 @@
   ((a) > (b) ? \
    (a) - (b) < FLT_EPSILON : \
    (b) - (a) < FLT_EPSILON)
+
+/**
+ * Checks if 2 floats are equal.
+ */
+#define math_floats_equal_w_epsilon(a,b,epsilon) \
+  ((a) > (b) ? \
+   (a) - (b) < epsilon : \
+   (b) - (a) < epsilon)
+
+#define math_doubles_equal(a,b) \
+  (a > b ? a - b < DBL_EPSILON : b - a < DBL_EPSILON)
 
 #endif

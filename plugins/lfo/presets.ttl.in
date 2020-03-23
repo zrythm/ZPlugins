@@ -1,0 +1,5 @@
+#<@PLUGIN_URI@#preset001>
+  #a pset:Preset ;
+  #lv2:appliesTo <@PLUGIN_URI@> ;
+  #rdfs:label "Default" ;
+  #rdfs:seeAlso <presets.ttl> .

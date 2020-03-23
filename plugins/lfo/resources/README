@@ -1,0 +1,45 @@
+The following files are licensed under CC-BY-SA 4.0.
+The author should be attributed as Mire.
+You should have received a copy of the license along
+with ZLFO. If not, see <https://creativecommons.org/licenses/by-sa/4.0/>.
+
+- curve*.svg
+- freeb*.svg
+- range.svg
+- custom.svg
+- saw.svg
+- sine.svg
+- square.svg
+- triangle.svg
+- step*.svg
+- sync*.svg
+- grid_snap*.svg
+- hmirror*.svg
+- vmirror*.svg
+
+----
+
+The following files are licensed under CC-BY-SA 4.0.
+The copyright attribution is as follows:
+
+Copyright (C) 2020 Carlos Han (C.K. Design)
+
+You should have received a copy of the license along
+with ZLFO. If not, see <https://creativecommons.org/licenses/by-sa/4.0/>.
+
+- zrythm_hover.svg
+- zrythm_orange.svg
+- zrythm.svg
+
+----
+
+The following files are licensed under the GNU LGPL, version 3 or later.
+See the file COPYING.breeze for details.
+
+- custom.svg
+
+----
+
+The rest of the files are too trivial to be placed
+under a license. They can be considered as public
+domain.

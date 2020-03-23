@@ -18,11 +18,29 @@
 # name, type, version
 plugins = [
   ['Chordz', 'MIDIPlugin', '1.0.0'],
-  ['Compressor', 'CompressorPlugin', '1.0.0'],
-  ['Limiter', 'LimiterPlugin', '0.0.1'],
-  ['Verb', 'ReverbPlugin', '0.1.0'],
+  ['CompressorSP', 'CompressorPlugin', '1.0.0'],
+  ['LimiterSP', 'LimiterPlugin', '0.1.0'],
+  ['LFO', 'OscillatorPlugin', '1.0.1'],
+  ['PhaserSP', 'PhaserPlugin', '0.1.0'],
+  #['Saturator', 'DistortionPlugin', '0.1.0'],
   ['Saw', 'InstrumentPlugin', '1.0.0'],
+  ['VerbSP', 'ReverbPlugin', '0.1.0'],
   ]
+
+fs = import('fs')
+guile = find_program ('guile')
+ztoolkit_dep = dependency(
+  'ztoolkit', version: '== 0.1.1',
+  fallback: ['ztoolkit', 'ztoolkit_dep'],
+  default_options: ['enable_rsvg=true'])
+
+if os_darwin
+  libext = '.dylib'
+elif os_windows
+  libext = '.dll'
+else
+  libext = '.so'
+endif
 
 foreach pl : plugins
 if get_option ('plugins').contains (pl[0])
@@ -37,51 +55,58 @@ if get_option ('plugins').contains (pl[0])
   pl_caps = plugin_name.to_upper ()
   pl_lowercase = plugin_name.to_lower ()
   pl_dsp_lib_name_noext = pl_str + '_dsp'
+  pl_ui_lib_name_noext = pl_str + '_ui'
   pl_type = pl[1]
   pl_version = pl[2]
   pl_minor_version = pl_version.split('.')[1]
   pl_micro_version = pl_version.split('.')[1]
 
   pl_dir = join_paths(lv2dir, pl_str + '.lv2')
-  pl_cdata = configuration_data ()
-  pl_cdata.set ('PLUGIN_NAME', pl_str)
-  pl_cdata.set (
-    'PROJECT_URI',
-    'https://www.zrythm.org/plugins')
-  pl_cdata.set (
-    'PLUGIN_URI',
-    pl_cdata.get ('PROJECT_URI') + '/' + pl_str)
-  pl_cdata.set (
-    'PLUGIN_MINOR_VERSION', pl_minor_version)
-  pl_cdata.set (
-    'PLUGIN_MICRO_VERSION', pl_micro_version)
-  pl_cdata.set (
-    'PLUGIN_TYPE', pl_type)
-  if os_windows
-    pl_cdata.set (
-      'PLUGIN_DSP_BINARY', pl_dsp_lib_name_noext + '.dll')
-  else
-    pl_cdata.set (
-      'PLUGIN_DSP_BINARY', pl_dsp_lib_name_noext + '.so')
-  endif
-  pl_cdata.set ('PLUGIN_TTL', pl_str + '.ttl')
+  project_uri = 'https://www.zrythm.org/plugins'
+  pl_uri = project_uri + '/' + pl_str
+  pl_ui_uri = pl_uri + '#UI'
+  pl_dsp_binary = pl_dsp_lib_name_noext + libext
+  pl_ui_binary = pl_ui_lib_name_noext + libext
+  pl_ttl = pl_str + '.ttl'
 
+  resources_exist = fs.is_dir (
+    join_paths (pl_lowercase, 'resources'))
+
+  # get UI data
+  ui_type = 'none'
+  ui_uri = 'none'
+  ui_binary = 'none'
+  ui_exists = fs.is_file (
+    join_paths (pl_lowercase, 'ui.c'))
+  if ui_exists
+    if os_windows
+      ui_type = 'WindowsUI'
+    elif os_linux or os_freebsd
+      ui_type = 'X11UI'
+    elif os_darwin
+      ui_type = 'CocoaUI'
+    endif
+    ui_uri = pl_ui_uri
+    ui_binary = pl_ui_binary
+  endif
+
+  # set config.h data
   config_h_data = configuration_data ()
   config_h_data.set_quoted (
-    'PROJECT_URI',
-    pl_cdata.get ('PROJECT_URI'))
+    'PROJECT_URI', project_uri)
   config_h_data.set_quoted (
-    'PLUGIN_NAME',
-    pl_cdata.get ('PLUGIN_NAME'))
+    'PLUGIN_NAME', pl_str)
   config_h_data.set_quoted (
-    'PLUGIN_URI',
-    pl_cdata.get ('PLUGIN_URI'))
+    'PLUGIN_URI', pl_uri)
+  config_h_data.set_quoted (
+    'PLUGIN_UI_URI', pl_ui_uri)
+  config_h_data.set_quoted (
+    'PLUGIN_UI_TYPE', ui_type)
   config_h_data.set_quoted (
     'PLUGIN_TYPE', pl_type)
   config_h_data.set_quoted (
     'PLUGIN_COMMON',
-    join_paths (
-      pl_lowercase, pl_lowercase + '_common.h'))
+    join_paths (pl_lowercase, 'common.h'))
   config_h_data.set_quoted (
     'PLUGIN_TTL_H', join_paths (pl_lowercase, 'ttl.h'))
   config_h_data.set_quoted (
@@ -94,7 +119,7 @@ if get_option ('plugins').contains (pl[0])
     config_h_data.set ('SECONDS_TO_SILENCE', 900)
   endif
   config_h_data.set_quoted (
-    pl_caps + '_VERSION', pl[1])
+    pl_caps + '_VERSION', pl[2])
 
   # create config.h
   pl_config_h = configure_file (
@@ -118,7 +143,7 @@ if get_option ('plugins').contains (pl[0])
     lv2_dep,
     ]
 
-  # create shared library
+  # create dsp shared library
   pl_inc_dirs = include_directories([
     '.', pl_lowercase,
     join_paths ('..', 'ext', 'Soundpipe', 'h'),
@@ -128,7 +153,7 @@ if get_option ('plugins').contains (pl[0])
     name_prefix: '',
     sources: [
       join_paths (
-        pl_lowercase, pl_lowercase + '.c'),
+        pl_lowercase, 'dsp.c'),
       ],
     dependencies: pl_deps,
     include_directories: pl_inc_dirs,
@@ -141,11 +166,54 @@ if get_option ('plugins').contains (pl[0])
       ],
     )
 
+  # create UI shared library if UI exists
+  if ui_exists
+    ui_inc_dirs = include_directories([
+      '.', pl_lowercase,
+      ])
+    pl_ui_lib = shared_library (
+      pl_ui_lib_name_noext,
+      name_prefix: '',
+      sources: [
+        join_paths (
+          pl_lowercase, 'ui.c'),
+        ],
+      dependencies: [
+        pl_deps,
+        ztoolkit_dep,
+        dependency ('librsvg-2.0'),
+        ],
+      include_directories: ui_inc_dirs,
+      install: true,
+      install_dir: pl_dir,
+      c_args: [
+        common_cflags,
+        '-DPLUGIN_CONFIG="../' + pl_lowercase + '_config.h"',
+        ],
+      )
+  endif
+
+  # installs resources if any
+  if resources_exist
+    install_subdir (
+      join_paths (pl_lowercase, 'resources'),
+      install_dir: pl_dir)
+  endif
+
+  presets_file = 'none'
+  # TODO add presets
+
   # create and install manifest ttl
   manifest_ttl = configure_file (
-    input: 'manifest.ttl.in',
+    input: 'manifest_gen.scm',
     output: pl_str + '_manifest.ttl',
-    configuration: pl_cdata,
+    command: [
+      guile, '-s', '@INPUT@', '@OUTPUT@',
+      project_uri, pl_type, pl_uri,
+      pl_dsp_binary, pl_minor_version,
+      pl_micro_version, pl_ttl,
+      ui_type, ui_uri, ui_binary, presets_file,
+      ],
     )
   install_data (
     manifest_ttl,
@@ -191,13 +259,15 @@ if get_option ('plugins').contains (pl[0])
       'LV2 lint', lv2lint_wrap,
       args: [
         lv2lint.path(), pl_build_dir, pl_str,
-        pl_cdata.get('PLUGIN_URI'),
-        ])
+        pl_uri,
+        ],
+      suite: pl[0])
   endif
   if lv2_validate.found() and sord_validate.found()
     test (
       'LV2 validate', lv2_validate,
-      args: pl_ttl)
+      args: pl_ttl,
+      suite: pl[0])
   endif
 endif
 endforeach

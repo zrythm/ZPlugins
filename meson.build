@@ -19,7 +19,7 @@ project (
   'ZPlugins', ['c'],
   version: '1.0.1',
   license: 'AGPLv3+',
-  meson_version: '>= 0.46.0',
+  meson_version: '>= 0.53.0',
   default_options: [
     'warning_level=2',
     'buildtype=debug',

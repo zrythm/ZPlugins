@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="32"
+   height="32"
+   viewBox="0 0 8.4666666 8.4666666"
+   version="1.1"
+   id="svg1923"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="freeb_black_rendered.svg">
+  <defs
+     id="defs1917" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="15.839192"
+     inkscape:cx="6.4803577"
+     inkscape:cy="12.983332"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     units="px"
+     inkscape:window-width="1920"
+     inkscape:window-height="1025"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata1920">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-288.53333)">
+    <g
+       aria-label="FREE"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.25266647px;line-height:1.25;font-family:Cantarell;-inkscape-font-specification:'Cantarell Bold';letter-spacing:0px;word-spacing:0px;display:inline;fill:#323232;fill-opacity:1;stroke:none;stroke-width:0.05631665"
+       id="text2281">
+      <path
+         d="m 1.2224832,293.67053 h 0.3412319 v -0.75279 h 0.781447 v -0.29435 h -0.781447 v -0.46626 h 0.8674062 v -0.29435 H 1.2224832 Z"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.60482335px;font-family:Cantarell;-inkscape-font-specification:'Cantarell Bold';fill:#323232;fill-opacity:1;stroke-width:0.05631665"
+         id="path814"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 2.7436593,293.67053 h 0.3360222 v -0.67465 h 0.3047644 l 0.3855138,0.67465 h 0.4037476 l -0.4532392,-0.74498 c 0.2083859,-0.099 0.338627,-0.29174 0.338627,-0.53659 0,-0.33342 -0.2448534,-0.52618 -0.6407865,-0.52618 H 2.7436593 Z m 0.6303673,-1.516 c 0.2109907,0 0.3360222,0.10679 0.3360222,0.28653 0,0.16931 -0.1041929,0.2709 -0.2917402,0.2709 H 3.0796815 v -0.55743 z"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.60482335px;font-family:Cantarell;-inkscape-font-specification:'Cantarell Bold';fill:#323232;fill-opacity:1;stroke-width:0.05631665"
+         id="path816"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 4.4479871,293.67053 h 1.2190574 v -0.29434 H 4.7840094 v -0.4845 h 0.8101 v -0.29434 h -0.8101 v -0.44022 h 0.8830351 v -0.29435 H 4.4479871 Z"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.60482335px;font-family:Cantarell;-inkscape-font-specification:'Cantarell Bold';fill:#323232;fill-opacity:1;stroke-width:0.05631665"
+         id="path818"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 6.025126,293.67053 h 1.2190574 v -0.29434 H 6.3611483 v -0.4845 h 0.8101 v -0.29434 h -0.8101 v -0.44022 h 0.8830351 v -0.29435 H 6.025126 Z"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.60482335px;font-family:Cantarell;-inkscape-font-specification:'Cantarell Bold';fill:#323232;fill-opacity:1;stroke-width:0.05631665"
+         id="path820"
+         inkscape:connector-curvature="0" />
+    </g>
+  </g>
+</svg>

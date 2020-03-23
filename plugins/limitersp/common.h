@@ -23,8 +23,8 @@
  * Common code for both the DSP and the UI.
  */
 
-#ifndef __Z_COMPRESSOR_COMMON_H__
-#define __Z_COMPRESSOR_COMMON_H__
+#ifndef __Z_LIMITER_COMMON_H__
+#define __Z_LIMITER_COMMON_H__
 
 #include PLUGIN_CONFIG
 

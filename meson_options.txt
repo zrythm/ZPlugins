@@ -26,7 +26,10 @@ option (
 option (
   'plugins', type : 'array',
   choices : [
-    'Chordz', 'Compressor', 'Limiter', 'Verb', 'Saw'
+    'Chordz', 'Chorus', 'CompressorSP', 'Delay',
+    'Distortion',
+    'EQ', 'LFO', 'LimiterSP', 'PhaserSP', 'Saturator',
+    'VerbSP', 'Saw'
     ],
   description: 'Plugins to build')
 

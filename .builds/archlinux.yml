@@ -1,0 +1,22 @@
+image: archlinux
+packages:
+  - meson
+  - libx11
+  - python
+  - ninja
+  - librsvg
+  - cairo
+  - lv2lint
+  - lv2
+sources:
+  - https://git.sr.ht/~alextee/zplugins
+tasks:
+  - setup: |
+      cd zplugins
+      meson build
+  - build: |
+      cd zplugins
+      ninja -C build
+  - test: |
+      cd zplugins
+      ninja -C build test

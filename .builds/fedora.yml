@@ -1,0 +1,25 @@
+image: fedora/latest
+packages:
+  - gcc-c++
+  - gcc
+  - pkgconfig
+  - python3
+  - gettext
+  - sed
+  - meson
+  - libX11-devel
+  - cairo-devel
+  - librsvg2-devel
+  - lv2-devel
+sources:
+  - https://git.sr.ht/~alextee/zplugins
+tasks:
+  - setup: |
+      cd zplugins
+      meson build
+  - build: |
+      cd zplugins
+      ninja -C build
+  - test: |
+      cd zplugins
+      ninja -C build test
