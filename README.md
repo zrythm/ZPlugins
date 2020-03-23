@@ -2,6 +2,8 @@ ZPlugins
 ========
 
 [![builds.sr.ht status](https://builds.sr.ht/~alextee/zplugins.svg)](https://builds.sr.ht/~alextee/zplugins?)
+[![travis build status](https://img.shields.io/travis/zrythm/ZPlugins?label=travis%20build)](https://travis-ci.org/zrythm/ZPlugins)
+[![code coverage](https://img.shields.io/coveralls/github/zrythm/ZPlugins)](https://coveralls.io/github/zrythm/ZPlugins)
 
 Collection of audio DSP plugins to be bundled with the
 Zrythm DAW.
@@ -20,7 +22,7 @@ Plugins
 Dependencies
 ------------
 
-ztoolkit (with rsvg), libsndfile
+guile, [ztoolkit](https://git.zrythm.org/cgit/ztoolkit/) (with rsvg), libsndfile
 
 Building
 --------

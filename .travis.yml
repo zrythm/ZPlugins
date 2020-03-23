@@ -25,7 +25,7 @@ before_install:
       export msys2+='& C:\\tools\\msys64\\msys2_shell.cmd -defterm -no-start'
       export mingw64="$msys2 -mingw64 -full-path -here -c \$\* --"
       export msys2+=" -msys2 -c \$\* --"
-      $msys2 pacman --sync --noconfirm --needed mingw-w64-x86_64-toolchain mingw-w64-x86_64-librsvg mingw-w64-x86_64-meson mingw-w64-x86_64-libsndfile mingw-w64-x86_64-guile
+      $msys2 pacman --sync --noconfirm --needed mingw-w64-x86_64-toolchain mingw-w64-x86_64-librsvg mingw-w64-x86_64-meson mingw-w64-x86_64-libsndfile guile
       ## Install more MSYS2 packages from https://packages.msys2.org/base here
       taskkill //IM gpg-agent.exe //F || true # https://travis-ci.community/t/4967
       export PATH=/C/tools/msys64/mingw64/bin:$PATH
@@ -38,7 +38,7 @@ before_install:
       brew link --overwrite python
       ;;
     linux)
-      sudo apt-get install -y librsvg2-dev libjack-dev libsndfile1-dev ninja-build python3 git lcov guile-2.0
+      sudo apt-get install -y librsvg2-dev libjack-dev libsndfile1-dev ninja-build python3 git lcov guile-2.0 lv2-dev
       git clone https://github.com/mesonbuild/meson /tmp/meson
       pip install --user gcovr cpp-coveralls
       ;;
@@ -70,7 +70,7 @@ script:
       ninja -C build test
       ;;
     windows)
-      cd ext/Soundpipe && make && cd ../..
+      $mingw64 cd ext/Soundpipe && make && cd ../..
       $mingw64 meson build
       $mingw64 ninja -C build
       $mingw64 ninja -C build test
