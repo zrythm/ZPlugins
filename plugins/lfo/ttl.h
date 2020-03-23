@@ -27,6 +27,7 @@ typedef enum PortType
 {
   PORT_TYPE_FLOAT,
   PORT_TYPE_INT,
+  PORT_TYPE_ENUM,
   PORT_TYPE_TOGGLE,
 } PortType;
 
@@ -48,9 +49,11 @@ print_ttl (FILE * f)
 @prefix lv2:  <http://lv2plug.in/ns/lv2core#> .\n\
 @prefix midi: <http://lv2plug.in/ns/ext/midi#> .\n\
 @prefix pprop: <http://lv2plug.in/ns/ext/port-props#> .\n\
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n\
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\
 @prefix time:  <http://lv2plug.in/ns/ext/time#> .\n\
 @prefix urid: <http://lv2plug.in/ns/ext/urid#> .\n\
+@prefix units:   <http://lv2plug.in/ns/extensions/units#> .\n\
 @prefix ui:   <http://lv2plug.in/ns/extensions/ui#> .\n\n");
 
   fprintf (f,
@@ -133,6 +136,8 @@ print_ttl (FILE * f)
       char symbol[256] = "\0";
       char name[256] = "\0";
       char comment[800] = "\0";
+      char unit[800] = "\0";
+      char scale_points[20000] = "\0";
       switch (i)
         {
         case LFO_SINE_TOGGLE:
@@ -185,7 +190,24 @@ print_ttl (FILE * f)
         case LFO_SYNC_RATE:
           strcpy (symbol, "sync_rate");
           strcpy (name, "Sync rate");
-          type = PORT_TYPE_INT;
+          type = PORT_TYPE_ENUM;
+          sprintf (
+            scale_points, "\
+    lv2:scalePoint [ rdfs:label \"1/128\"; rdf:value 0 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"1/64\"; rdf:value 1 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"1/32\"; rdf:value 2 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"1/16\"; rdf:value 3 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"1/8\"; rdf:value 4 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"1/4\"; rdf:value 5 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"1/2\"; rdf:value 6 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"1/1\"; rdf:value 7 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"2/1\"; rdf:value 8 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"4/1\"; rdf:value 9 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"8/1\"; rdf:value 10 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"16/1\"; rdf:value 11 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"32/1\"; rdf:value 11 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"64/1\"; rdf:value 11 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"128/1\"; rdf:value 11 ] ;\n");
           defi = SYNC_1_4;
           mini = 0;
           maxi = NUM_SYNC_RATES - 1;
@@ -193,7 +215,15 @@ print_ttl (FILE * f)
         case LFO_GRID_STEP:
           strcpy (symbol, "grid_step");
           strcpy (name, "Grid step");
-          type = PORT_TYPE_INT;
+          type = PORT_TYPE_ENUM;
+          sprintf (
+            scale_points, "\
+    lv2:scalePoint [ rdfs:label \"1/1\"; rdf:value 0 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"1/2\"; rdf:value 1 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"1/4\"; rdf:value 2 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"1/8\"; rdf:value 3 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"1/16\"; rdf:value 4 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"1/32\"; rdf:value 5 ] ;\n");
           defi = GRID_STEP_EIGHTH;
           mini = 0;
           maxi = GRID_STEP_THIRTY_SECOND;
@@ -201,7 +231,12 @@ print_ttl (FILE * f)
         case LFO_SYNC_RATE_TYPE:
           strcpy (symbol, "sync_rate_type");
           strcpy (name, "Sync rate type");
-          type = PORT_TYPE_INT;
+          type = PORT_TYPE_ENUM;
+          sprintf (
+            scale_points, "\
+    lv2:scalePoint [ rdfs:label \"Normal\"; rdf:value 0 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"Dotted (.)\"; rdf:value 1 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"Triplet (t)\"; rdf:value 2 ] ;\n");
           defi = SYNC_TYPE_NORMAL;
           mini = 0;
           maxi = SYNC_TYPE_TRIPLET;
@@ -211,6 +246,7 @@ print_ttl (FILE * f)
           strcpy (name, "Frequency");
           strcpy (
             comment, "Frequency if free running");
+          strcpy (unit, "hz");
           min = MIN_FREQ;
           def = DEF_FREQ;
           max = MAX_FREQ;
@@ -314,6 +350,11 @@ print_ttl (FILE * f)
     lv2:name \"%s\" ;\n",
         i, symbol, name);
 
+      if (unit[0] != '\0')
+        {
+          fprintf (f, "\
+    units:unit units:%s ;\n", unit);
+        }
       if (comment[0] != '\0')
         {
           fprintf (f,
@@ -330,7 +371,8 @@ print_ttl (FILE * f)
     lv2:maximum %f ;\n",
             (double) def, (double) min, (double) max);
         }
-      else if (type == PORT_TYPE_INT)
+      else if (type == PORT_TYPE_INT ||
+               type == PORT_TYPE_ENUM)
         {
           fprintf (f,
 "    lv2:default %d ;\n\
@@ -353,6 +395,14 @@ print_ttl (FILE * f)
         {
           fprintf (f,
 "    lv2:portProperty lv2:toggled ;\n");
+        }
+      else if (type == PORT_TYPE_ENUM)
+        {
+          fprintf (f,
+"    lv2:portProperty lv2:integer ;\n");
+          fprintf (f,
+"    lv2:portProperty lv2:enumeration ;\n");
+          fprintf (f, "%s", scale_points);
         }
 
       fprintf (f,
