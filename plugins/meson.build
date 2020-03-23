@@ -264,9 +264,14 @@ if get_option ('plugins').contains (pl[0])
       suite: pl[0])
   endif
   if lv2_validate.found() and sord_validate.found()
+    lv2_validate_wrap = find_program (
+      join_paths ('..', 'scripts', 'lv2_validate_wrap.sh'))
     test (
-      'LV2 validate', lv2_validate,
-      args: pl_ttl,
+      'LV2 validate', lv2_validate_wrap,
+      args: [
+        lv2lint.path(), pl_build_dir, pl_str,
+        pl_uri,
+        ],
       suite: pl[0])
   endif
 endif

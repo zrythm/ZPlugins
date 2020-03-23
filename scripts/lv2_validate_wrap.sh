@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# $1: lv2lint
+# $1: lv2_validate
 # $2: plugin build dir
 # $3: plugin name
 # $4: plugin URI
@@ -7,7 +7,7 @@
 set -o xtrace
 set -e
 
-LV2_LINT_BIN=$1
+LV2_VALIDATE_BIN=$1
 PL_BUILD_DIR=$2
 PL_NAME=$3
 PL_URI=$4
@@ -22,5 +22,4 @@ if [ -e $PL_BUILD_DIR/${PL_NAME}_ui.so ] ; then
 fi
 cp $PL_BUILD_DIR/$3_manifest.ttl $tmp_plugin_dir/manifest.ttl
 
-LV2_PATH="$tmpdir" env $LV2_LINT_BIN -d \
-  -I $tmp_plugin_dir/ $PL_URI
+LV2_PATH="$tmpdir" env $LV2_VALIDATE_BIN $PL_URI
