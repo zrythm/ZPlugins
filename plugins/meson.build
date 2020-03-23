@@ -259,7 +259,7 @@ if get_option ('plugins').contains (pl[0])
       'LV2 lint', lv2lint_wrap,
       args: [
         lv2lint.path(), pl_build_dir, pl_str,
-        pl_uri,
+        pl_uri, libext,
         ],
       suite: pl[0])
   endif
@@ -269,8 +269,8 @@ if get_option ('plugins').contains (pl[0])
     test (
       'LV2 validate', lv2_validate_wrap,
       args: [
-        lv2lint.path(), pl_build_dir, pl_str,
-        pl_uri,
+        lv2_validate.path(), pl_build_dir, pl_str,
+        pl_uri, libext,
         ],
       suite: pl[0])
   endif
