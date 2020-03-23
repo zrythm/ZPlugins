@@ -10,14 +10,17 @@ Plugins
 -------
 
 - **ZChordz** - plays chords using white keys
-- **ZCompressor** - compressor
-- **ZVerb** - reverb based on zita-rev
-- **ZSaw** - a supersaw synth with 1 parameter
+- **ZCompressorSP** - compressor
+- **ZLimiterSP** - peak limiter
+- **ZLFO** - full-featured LFO for CV-based automation
+- **ZPhaserSP** - stereo phaser
+- **ZSaw** - supersaw synth with 1 parameter
+- **ZVerbSP** - reverb based on zita-rev
 
 Dependencies
 ------------
 
-libsndfile
+ztoolkit (with rsvg), libsndfile
 
 Building
 --------
