@@ -9,11 +9,14 @@ packages:
   - librsvg2
   - lv2lint
   - lv2
+  - libsndfile
+  - guile
 sources:
   - https://git.sr.ht/~alextee/zplugins
 tasks:
   - setup: |
       cd zplugins
+      cd ext/Soundpipe && CC=gcc make && cd ../..
       meson build
   - build: |
       cd zplugins

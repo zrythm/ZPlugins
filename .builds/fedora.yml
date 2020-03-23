@@ -11,12 +11,16 @@ packages:
   - cairo-devel
   - librsvg2-devel
   - lv2-devel
+  - libsndfile-devel
+  - guile
 sources:
   - https://git.sr.ht/~alextee/zplugins
+  - https://github.com/mesonbuild/meson
 tasks:
   - setup: |
       cd zplugins
-      meson build
+      cd ext/Soundpipe && CC=gcc make && cd ../..
+      ../meson/meson.py build
   - build: |
       cd zplugins
       ninja -C build

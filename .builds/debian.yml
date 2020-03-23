@@ -7,12 +7,16 @@ packages:
   - libx11-dev
   - libcairo2-dev
   - lv2-dev
+  - libsndfile1-dev
+  - guile-2.0
 sources:
   - https://git.sr.ht/~alextee/zplugins
+  - https://github.com/mesonbuild/meson
 tasks:
   - setup: |
       cd zplugins
-      meson build
+      cd ext/Soundpipe && CC=gcc make && cd ../..
+      ../meson/meson.py build
   - build: |
       cd zplugins
       ninja -C build

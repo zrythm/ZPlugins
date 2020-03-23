@@ -8,11 +8,13 @@ packages:
   - cairo
   - lv2lint
   - lv2
+  - libsndfile
 sources:
   - https://git.sr.ht/~alextee/zplugins
 tasks:
   - setup: |
       cd zplugins
+      cd ext/Soundpipe && CC=gcc make && cd ../..
       meson build
   - build: |
       cd zplugins

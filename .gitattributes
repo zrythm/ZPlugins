@@ -7,3 +7,5 @@
 
 # add vendored paths
 ext/** linguist-vendored
+
+**/*.h linguist-language=C
