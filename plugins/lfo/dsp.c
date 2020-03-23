@@ -447,6 +447,12 @@ run (
   LFO * self = (LFO *) instance;
   PluginCommon * pl_common = &self->common.pl_common;
 
+#ifdef TRIAL_VER
+  if (get_time_since_instantiation (
+        &self->common.pl_common) > SECONDS_TO_SILENCE)
+    return;
+#endif
+
   int xport_changed = 0;
 
   /* read incoming events from host and UI */

@@ -51,8 +51,6 @@
 
 #include <ztoolkit/ztk.h>
 
-#define TITLE "ZLFO"
-
 /** Width and height of the window. */
 #define WIDTH 480
 #define HEIGHT 261
@@ -2503,7 +2501,7 @@ create_ui (
     self->resize->handle, WIDTH, HEIGHT);
 
   self->app = ztk_app_new (
-    TITLE, self->parent_window,
+    PLUGIN_NAME, self->parent_window,
     WIDTH, HEIGHT);
 
   /* init the theme */

@@ -45,7 +45,7 @@ Args:
 (define (main . args)
 
   ;; verify number of args
-  (if (not (eq? (length args) 13))
+  (when (not (eq? (length args) 13))
     ((display "Need 12 arguments")
      (newline)
      (exit -1)))
@@ -95,7 +95,7 @@ Collection of LV2 plugins to be bundled with Zrythm
     lv2:~a ;
   lv2:binary <~a> ;
 " plugin-uri plugin-type dsp-binary)
-         (if (arg-exists ui-uri)
+         (when (arg-exists ui-uri)
            (format #t "  ui:ui <~a> ;\n"
                    ui-uri))
          (format #t "  lv2:minorVersion ~a;
@@ -105,7 +105,7 @@ Collection of LV2 plugins to be bundled with Zrythm
 " minor-ver micro-ver plugin-ttl)
 
          ;; print UI URI
-         (if (arg-exists ui-uri)
+         (when (arg-exists ui-uri)
            (format #t "<~a>
   a ui:~a ;
   ui:binary <~a> ;
@@ -115,13 +115,13 @@ Collection of LV2 plugins to be bundled with Zrythm
 " ui-uri ui-type ui-binary plugin-ttl))
 
          ;; add presets
-         (if (file-exists? presets-file)
-           (cons
+         (when (file-exists? presets-file)
+           (begin
              (newline)
              (with-input-from-file presets-file
                (lambda ()
                  (let loop ((x (read-char)))
-                   (if (not (eof-object? x))
+                   (when (not (eof-object? x))
                      (begin
                        (display x)
                        (loop (read-char))))))))))))))

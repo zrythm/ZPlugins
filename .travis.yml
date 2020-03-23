@@ -1,0 +1,86 @@
+# Copyright (C) 2020 Alexandros Theodotou <alex at zrythm dot org>
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+
+language: c
+os:
+  - windows
+  - osx
+  - linux
+dist: bionic
+
+before_install:
+- |-
+  set -e
+  case $TRAVIS_OS_NAME in
+    windows)
+      [[ ! -f C:/tools/msys64/msys2_shell.cmd ]] && rm -rf C:/tools/msys64
+      choco uninstall -y mingw
+      choco upgrade --no-progress -y msys2
+      export msys2='cmd //C RefreshEnv.cmd '
+      export msys2+='& set MSYS=winsymlinks:nativestrict '
+      export msys2+='& C:\\tools\\msys64\\msys2_shell.cmd -defterm -no-start'
+      export mingw64="$msys2 -mingw64 -full-path -here -c \$\* --"
+      export msys2+=" -msys2 -c \$\* --"
+      $msys2 pacman --sync --noconfirm --needed mingw-w64-x86_64-toolchain mingw-w64-x86_64-librsvg mingw-w64-x86_64-meson mingw-w64-x86_64-libsndfile mingw-w64-x86_64-guile
+      ## Install more MSYS2 packages from https://packages.msys2.org/base here
+      taskkill //IM gpg-agent.exe //F || true # https://travis-ci.community/t/4967
+      export PATH=/C/tools/msys64/mingw64/bin:$PATH
+      export MAKE=mingw32-make  # so that Autotools can find it
+      ;;
+    osx)
+      brew update
+      # use || true because it returns 1
+      brew install meson libsndfile librsvg guile || true
+      brew link --overwrite python
+      ;;
+    linux)
+      sudo apt-get install -y librsvg2-dev libjack-dev libsndfile1-dev ninja-build python3 git lcov guile-2.0
+      git clone https://github.com/mesonbuild/meson /tmp/meson
+      pip install --user gcovr cpp-coveralls
+      ;;
+  esac
+
+before_cache:
+- |-
+  set -e
+  case $TRAVIS_OS_NAME in
+    windows)
+      # https://unix.stackexchange.com/a/137322/107554
+      $msys2 pacman --sync --clean --noconfirm
+      ;;
+  esac
+
+cache:
+  directories:
+  - $HOME/AppData/Local/Temp/chocolatey
+  - /C/tools/msys64
+
+script:
+- |-
+  set -e
+  case $TRAVIS_OS_NAME in
+    osx)
+      cd ext/Soundpipe && make && cd ../..
+      meson build
+      ninja -C build
+      ninja -C build test
+      ;;
+    windows)
+      cd ext/Soundpipe && make && cd ../..
+      $mingw64 meson build
+      $mingw64 ninja -C build
+      $mingw64 ninja -C build test
+      ;;
+    linux)
+      cd ext/Soundpipe && CC=gcc make && cd ../..
+      /tmp/meson/meson.py build -Db_coverage=true
+      ninja -C build
+      ninja -C build test
+      ninja -C build coverage-text
+      coveralls -e ext -e subprojects -b build --gcov-options '\-lp'
+      ;;
+  esac
