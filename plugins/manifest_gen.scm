@@ -45,10 +45,10 @@ Args:
 (define (main . args)
 
   ;; verify number of args
-  (when (not (eq? (length args) 13))
-    ((display "Need 12 arguments")
-     (newline)
-     (exit -1)))
+  (unless (eq? (length args) 13)
+    (display "Need 12 arguments")
+    (newline)
+    (exit -1))
 
   ;; get args
   (match args
@@ -116,15 +116,13 @@ Collection of LV2 plugins to be bundled with Zrythm
 
          ;; add presets
          (when (file-exists? presets-file)
-           (begin
-             (newline)
-             (with-input-from-file presets-file
-               (lambda ()
-                 (let loop ((x (read-char)))
-                   (when (not (eof-object? x))
-                     (begin
-                       (display x)
-                       (loop (read-char))))))))))))))
+           (newline)
+           (with-input-from-file presets-file
+             (lambda ()
+               (let loop ((x (read-char)))
+                 (unless (eof-object? x)
+                   (display x)
+                   (loop (read-char))))))))))))
 
 
 (apply main (program-arguments))
