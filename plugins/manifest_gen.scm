@@ -119,10 +119,7 @@ Collection of LV2 plugins to be bundled with Zrythm
            (newline)
            (with-input-from-file presets-file
              (lambda ()
-               (let loop ((x (read-char)))
-                 (unless (eof-object? x)
-                   (display x)
-                   (loop (read-char))))))))))))
+               (dump-port current-input-port current-output-port)))))))))
 
 
 (apply main (program-arguments))
