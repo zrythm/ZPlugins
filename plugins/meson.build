@@ -28,7 +28,7 @@ plugins = [
   ]
 
 fs = import('fs')
-guile = find_program ('guile')
+guile = find_program (['guile2.2', 'guile'])
 ztoolkit_dep = dependency(
   'ztoolkit', version: '>= 0.1.1',
   fallback: ['ztoolkit', 'ztoolkit_dep'],
