@@ -25,7 +25,7 @@ before_install:
       export msys2+='& C:\\tools\\msys64\\msys2_shell.cmd -defterm -no-start'
       export mingw64="$msys2 -mingw64 -full-path -here -c \$\* --"
       export msys2+=" -msys2 -c \$\* --"
-      $msys2 pacman --sync --noconfirm --needed mingw-w64-x86_64-toolchain mingw-w64-x86_64-librsvg mingw-w64-x86_64-meson mingw-w64-x86_64-libsndfile guile mingw-w64-x86_64-make
+      $msys2 pacman --sync --noconfirm --needed mingw-w64-x86_64-toolchain mingw-w64-x86_64-librsvg mingw-w64-x86_64-meson mingw-w64-x86_64-libsndfile guile make
       ## Install more MSYS2 packages from https://packages.msys2.org/base here
       taskkill //IM gpg-agent.exe //F || true # https://travis-ci.community/t/4967
       export PATH=/C/tools/msys64/mingw64/bin:$PATH
@@ -70,7 +70,7 @@ script:
       ninja -C build test
       ;;
     windows)
-      $mingw64 cd ext/Soundpipe && make && cd ../..
+      $mingw64 cd ext/Soundpipe && $MAKE && cd ../..
       $mingw64 meson build
       $mingw64 ninja -C build
       $mingw64 ninja -C build test

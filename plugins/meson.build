@@ -29,6 +29,7 @@ plugins = [
 
 fs = import('fs')
 guile = find_program (['guile2.2', 'guile'])
+sh = find_program ('sh')
 ztoolkit_dep = dependency(
   'ztoolkit', version: '>= 0.1.1',
   fallback: ['ztoolkit', 'ztoolkit_dep'],
@@ -220,7 +221,9 @@ if get_option ('plugins').contains (pl[0])
   manifest_ttl = configure_file (
     output: pl_str + '_manifest.ttl',
     command: [
-      manifest_gen_wrap, '@OUTPUT@',
+      sh,
+      meson.current_build_dir () / 'manifest_gen_wrap.sh',
+      '@OUTPUT@',
       project_uri, pl_type, pl_uri,
       pl_dsp_binary, pl_minor_version,
       pl_micro_version, pl_ttl,
