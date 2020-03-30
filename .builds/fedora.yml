@@ -12,7 +12,7 @@ packages:
   - librsvg2-devel
   - lv2-devel
   - libsndfile-devel
-  - guile
+  - guile22-devel
 sources:
   - https://git.sr.ht/~alextee/zplugins
   - https://github.com/mesonbuild/meson

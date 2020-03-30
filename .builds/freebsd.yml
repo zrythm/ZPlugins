@@ -10,7 +10,7 @@ packages:
   - lv2lint
   - lv2
   - libsndfile
-  - guile
+  - guile2
   - gmake
 sources:
   - https://git.sr.ht/~alextee/zplugins

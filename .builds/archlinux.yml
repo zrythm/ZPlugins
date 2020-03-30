@@ -6,6 +6,7 @@ packages:
   - ninja
   - librsvg
   - cairo
+  - guile
   - lv2lint
   - lv2
   - libsndfile
