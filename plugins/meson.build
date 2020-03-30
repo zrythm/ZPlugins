@@ -42,6 +42,19 @@ else
   libext = '.so'
 endif
 
+guile_path = guile.path ()
+if os_windows
+  guile_path = 'guile'
+endif
+manifest_gen_wrap = configure_file (
+  input: 'manifest_gen_wrap.sh',
+  output: 'manifest_gen_wrap.sh',
+  configuration: {
+    'CURRENT_SOURCE_DIR': meson.current_source_dir(),
+    'GUILE': guile_path,
+    },
+  )
+
 foreach pl : plugins
 if get_option ('plugins').contains (pl[0])
 
@@ -205,10 +218,9 @@ if get_option ('plugins').contains (pl[0])
 
   # create and install manifest ttl
   manifest_ttl = configure_file (
-    input: 'manifest_gen.scm',
     output: pl_str + '_manifest.ttl',
     command: [
-      guile, '-s', '@INPUT@', '@OUTPUT@',
+      manifest_gen_wrap, '@OUTPUT@',
       project_uri, pl_type, pl_uri,
       pl_dsp_binary, pl_minor_version,
       pl_micro_version, pl_ttl,
