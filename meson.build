@@ -17,7 +17,7 @@
 
 project (
   'ZPlugins', ['c'],
-  version: '1.0.1',
+  version: '0.1.2',
   license: 'AGPLv3+',
   meson_version: '>= 0.53.0',
   default_options: [
