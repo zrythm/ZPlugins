@@ -416,33 +416,46 @@ print_ttl (FILE * f)
     lv2:index %d ;\n\
     lv2:symbol \"sine_out\" ;\n\
     lv2:name \"Sine\" ;\n\
+    lv2:minimum %f ;\n\
+    lv2:maximum %f ;\n\
   ] , [\n\
     a lv2:OutputPort ,\n\
       lv2:CVPort ;\n\
     lv2:index %d ;\n\
     lv2:symbol \"triangle_out\" ;\n\
     lv2:name \"Triangle\" ;\n\
+    lv2:minimum %f ;\n\
+    lv2:maximum %f ;\n\
   ] , [\n\
     a lv2:OutputPort ,\n\
       lv2:CVPort ;\n\
     lv2:index %d ;\n\
     lv2:symbol \"saw_out\" ;\n\
     lv2:name \"Saw\" ;\n\
+    lv2:minimum %f ;\n\
+    lv2:maximum %f ;\n\
   ] , [\n\
     a lv2:OutputPort ,\n\
       lv2:CVPort ;\n\
     lv2:index %d ;\n\
     lv2:symbol \"square_out\" ;\n\
     lv2:name \"Square\" ;\n\
+    lv2:minimum %f ;\n\
+    lv2:maximum %f ;\n\
   ] , [\n\
     a lv2:OutputPort ,\n\
       lv2:CVPort ;\n\
     lv2:index %d ;\n\
     lv2:symbol \"custom_out\" ;\n\
     lv2:name \"Custom\" ;\n\
+    lv2:minimum %f ;\n\
+    lv2:maximum %f ;\n\
   ] .\n\n",
-    LFO_SINE_OUT, LFO_TRIANGLE_OUT, LFO_SAW_OUT,
-    LFO_SQUARE_OUT, LFO_CUSTOM_OUT);
+    LFO_SINE_OUT, -1.0, 1.0,
+    LFO_TRIANGLE_OUT, -1.0, 1.0,
+    LFO_SAW_OUT, -1.0, 1.0,
+    LFO_SQUARE_OUT,  -1.0, 1.0,
+    LFO_CUSTOM_OUT, -1.0, 1.0);
 
   /* write UI */
   fprintf (f,
