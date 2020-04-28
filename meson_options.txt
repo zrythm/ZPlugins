@@ -28,7 +28,8 @@ option (
   choices : [
     'Chordz', 'Chorus', 'CompressorSP', 'Delay',
     'Distortion',
-    'EQ', 'LFO', 'LimiterSP', 'PhaserSP', 'Saturator',
+    'EQ', 'LFO', 'LimiterSP', 'PhaserSP',
+    'PitchSP', 'Saturator',
     'VerbSP', 'Saw'
     ],
   description: 'Plugins to build')

@@ -22,6 +22,7 @@ plugins = [
   ['LimiterSP', 'LimiterPlugin', '0.1.0'],
   ['LFO', 'OscillatorPlugin', '1.0.1'],
   ['PhaserSP', 'PhaserPlugin', '0.1.0'],
+  ['PitchSP', 'PitchPlugin', '0.1.0'],
   #['Saturator', 'DistortionPlugin', '0.1.0'],
   ['Saw', 'InstrumentPlugin', '1.0.0'],
   ['VerbSP', 'ReverbPlugin', '0.1.0'],
@@ -278,7 +279,7 @@ if get_option ('plugins').contains (pl[0])
         ],
       suite: pl[0])
   endif
-  if lv2_validate.found() and sord_validate.found() and false
+  if lv2_validate.found() and sord_validate.found()
     lv2_validate_wrap = find_program (
       join_paths ('..', 'scripts', 'lv2_validate_wrap.sh'))
     test (

@@ -23,6 +23,7 @@ soundpipe_module_files = files([
   'dist.c',
   'peaklim.c',
   'phaser.c',
+  'pshift.c',
   'spa.c',
   'saturator.c',
   'zitarev.c',
