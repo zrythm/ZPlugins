@@ -250,6 +250,7 @@ if get_option ('plugins').contains (pl[0])
       '-DPLUGIN_CONFIG="../' + pl_lowercase + '_config.h"',
       ],
     install: false,
+    native: true,
     )
   pl_ttl = custom_target (
     pl_str + '.ttl',
