@@ -18,7 +18,6 @@
 soundpipe_lib_files = files([
   join_paths ('dr_wav', 'dr_wav.c'),
   join_paths ('fft', 'fft.c'),
-  join_paths ('fft', 'fftlib.c'),
   join_paths ('inih', 'ini.c'),
   join_paths ('kissfft', 'kiss_fft.c'),
   join_paths ('kissfft', 'kiss_fftr.c'),
