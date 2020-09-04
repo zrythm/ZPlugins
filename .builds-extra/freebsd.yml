@@ -1,0 +1,27 @@
+image: freebsd/latest
+packages:
+  - meson
+  - ninja
+  - python36
+  - pkgconf
+  - libX11
+  - cairo
+  - librsvg2
+  - lv2lint
+  - lv2
+  - libsndfile
+  - guile2
+  - gmake
+sources:
+  - https://git.sr.ht/~alextee/zplugins
+tasks:
+  - setup: |
+      cd zplugins
+      cd ext/Soundpipe && gmake && cd ../..
+      meson build
+  - build: |
+      cd zplugins
+      ninja -C build
+  - test: |
+      cd zplugins
+      ninja -C build test
