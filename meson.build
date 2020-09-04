@@ -140,10 +140,5 @@ if os_windows
     ]
 endif
 
-#add_project_arguments (
-  #common_cflags,
-  #language: [ 'c' ]
-  #)
-
 subdir ('ext')
 subdir ('plugins')

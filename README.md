@@ -29,7 +29,6 @@ Building
 
 Build and install all plugins
 
-    cd ext/Soundpipe && CC=gcc make && cd ../..
     meson build
     ninja -C build
     ninja -C build install

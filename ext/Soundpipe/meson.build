@@ -15,13 +15,23 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with ZPlugins.  If not, see <https://www.gnu.org/licenses/>.
 
+# things that need to be built before
+pre_soundpipe = custom_target (
+  'pre-soundpipe',
+  output: 'pre-soundpipe',
+  command: [
+    'cd', meson.current_source_dir (), '&&',
+    'CC=' + cc.get_id (), 'make',
+    ])
+
 subdir('modules')
 subdir('lib')
 
 soundpipe_lib = static_library (
-  'soundpipe',
+  'soundpipe-lib',
   soundpipe_lib_files,
   soundpipe_module_files,
+  pre_soundpipe,
   include_directories: [
     'h',
     join_paths ('lib', 'dr_wav'),
