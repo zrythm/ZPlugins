@@ -23,8 +23,9 @@ pre_soundpipe = custom_target (
   'pre-soundpipe',
   output: 'pre-soundpipe',
   command: [
-    'cd', meson.current_source_dir (), '&&',
-    'CC=' + cc.get_id (), 'make',
+    bash, '-c',
+    'cd ' + meson.current_source_dir () + ' && ' +
+    'CC=' + cc.get_id () + ' make',
     ])
 
 soundpipe_lib = static_library (
