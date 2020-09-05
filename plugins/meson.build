@@ -156,6 +156,7 @@ if get_option ('plugins').contains (pl[0])
     pl_config_h_dep,
     cc.find_library ('m'),
     lv2_dep,
+    pre_soundpipe_dep,
     ]
 
   # create dsp shared library

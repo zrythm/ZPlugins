@@ -22,17 +22,22 @@ subdir('lib')
 pre_soundpipe = custom_target (
   'pre-soundpipe',
   output: 'pre-soundpipe',
+  input: 'Makefile',
   command: [
     bash, '-c',
-    'cd ' + meson.current_source_dir () + ' && ' +
-    'CC=' + cc.get_id () + ' make -j1',
+    'CC=' + cc.get_id () + ' make -j1 -C ' +
+    meson.current_source_dir () +
+    ' && mkdir -p ' +
+    meson.current_build_dir () + ' && touch @OUTPUT@',
     ])
+
+pre_soundpipe_dep = declare_dependency (
+  sources: pre_soundpipe)
 
 soundpipe_lib = static_library (
   'soundpipe-lib',
   soundpipe_lib_files,
   soundpipe_module_files,
-  pre_soundpipe,
   include_directories: [
     'h',
     join_paths ('lib', 'dr_wav'),
@@ -46,6 +51,7 @@ soundpipe_lib = static_library (
   pic: true,
   dependencies: [
     dependency('sndfile'),
+    pre_soundpipe_dep,
     cc.find_library('m'),
     ],
   c_args: [
