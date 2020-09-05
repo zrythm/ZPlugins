@@ -27,6 +27,8 @@ project (
     ],
   )
 
+bash = find_program ('bash')
+
 cc = meson.get_compiler ('c')
 
 # detect os
