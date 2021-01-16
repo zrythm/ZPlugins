@@ -15,8 +15,7 @@ sources:
 tasks:
   - setup: |
       cd zplugins
-      cd ext/Soundpipe && CC=gcc make && cd ../..
-      meson build
+      meson build -Dlv2dir=/usr/lib/lv2
   - build: |
       cd zplugins
       ninja -C build
