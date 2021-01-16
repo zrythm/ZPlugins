@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2020 Alexandros Theodotou <alex at zrythm dot org>
+# Copyright (C) 2019-2021 Alexandros Theodotou <alex at zrythm dot org>
 #
 # This file is part of ZPlugins
 #
@@ -17,7 +17,7 @@
 
 project (
   'ZPlugins', ['c'],
-  version: '0.1.2',
+  version: '0.2.1',
   license: 'AGPLv3+',
   meson_version: '>= 0.53.0',
   default_options: [
