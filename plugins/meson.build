@@ -255,31 +255,33 @@ if get_option ('plugins').contains (pl[0])
 
   # test
   pl_build_dir = meson.current_build_dir ()
-  lv2lint = find_program ('lv2lint', required: false)
-  lv2_validate = find_program (
-    'lv2_validate', required: false)
-  sord_validate = find_program (
-    'sord_validate', required: false)
+  test_env = environment ({
+    'PL_BUILD_DIR': pl_build_dir,
+    'PL_NAME': pl_str,
+    'PL_URI': pl_uri,
+    'LIBEXT': libext,
+    'LV2_DIR': lv2dir,
+    })
   if lv2lint.found() and (os_linux or os_freebsd)
-    lv2lint_wrap = find_program (
-      join_paths ('..', 'scripts', 'lv2lint_wrap.sh'))
     test (
       'LV2 lint', lv2lint_wrap,
-      args: [
-        lv2lint.path(), pl_build_dir, pl_str,
-        pl_uri, libext,
-        ],
+      args: [ lv2lint.path () ],
+      env: test_env,
       suite: pl[0])
   endif
   if lv2_validate.found() and sord_validate.found()
-    lv2_validate_wrap = find_program (
-      join_paths ('..', 'scripts', 'lv2_validate_wrap.sh'))
     test (
       'LV2 validate', lv2_validate_wrap,
-      args: [
-        lv2_validate.path(), pl_build_dir, pl_str,
-        pl_uri, libext,
-        ],
+      args: [ lv2_validate.path() ],
+      env: test_env,
+      suite: pl[0])
+  endif
+  if carla_single.found () and not pl_str.contains ('LFO')
+    test (
+      'Carla single', carla_single_wrap,
+      args: [ carla_single.path () ],
+      env: test_env,
+      timeout: 60,
       suite: pl[0])
   endif
 endif

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# $1: lv2_validate
+# $1: carla-single
 
 set -o xtrace
 set -e
 
-lv2_validate_bin=$1
+carla_single_bin=$1
 
-tmpdir=$(mktemp -d /tmp/lv2_validate_wrap.XXXXXXXXX)
+tmpdir=$(mktemp -d /tmp/carla_single_wrap.XXXXXXXXX)
 tmp_plugin_dir="$tmpdir/$PL_NAME"
 mkdir -p "$tmp_plugin_dir"
 cp $PL_BUILD_DIR/$PL_NAME.ttl \
@@ -25,6 +25,8 @@ for lv2dir in atom.lv2 buf-size.lv2 core.lv2 data-access.lv2 \
 done
 
 LV2_PATH="$tmpdir" \
-  env $lv2_validate_bin $PL_URI
+  CARLA_BRIDGE_DUMMY=1 \
+  CARLA_BRIDGE_TESTING=native \
+  env $carla_single_bin $PL_URI
 
 rm -rf $tmpdir

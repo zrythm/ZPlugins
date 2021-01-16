@@ -31,6 +31,19 @@ fs = import('fs')
 guile = find_program (['guile2.2', 'guile'])
 sh = find_program ('sh')
 bash = find_program ('bash')
+lv2lint = find_program ('lv2lint', required: false)
+lv2_validate = find_program (
+  'lv2_validate', required: false)
+sord_validate = find_program (
+  'sord_validate', required: false)
+carla_single = find_program (
+  'carla-single', required: false)
+carla_single_wrap = find_program (
+  'scripts/carla_single_wrap.sh')
+lv2lint_wrap = find_program (
+  'scripts/lv2lint_wrap.sh')
+lv2_validate_wrap = find_program (
+  'scripts/lv2_validate_wrap.sh')
 
 # dependencies
 ztoolkit_dep = dependency(
@@ -59,7 +72,7 @@ elif host_machine.system() == 'windows'
 endif
 
 prefix = get_option('prefix')
-lv2dir = join_paths(prefix, get_option('lv2dir'))
+lv2dir = prefix / get_option('lv2dir')
 
 # cflags
 common_cflags = cc.get_supported_arguments([
