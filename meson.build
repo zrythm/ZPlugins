@@ -27,7 +27,18 @@ project (
     ],
   )
 
+fs = import('fs')
+guile = find_program (['guile2.2', 'guile'])
+sh = find_program ('sh')
 bash = find_program ('bash')
+
+# dependencies
+ztoolkit_dep = dependency(
+  'ztoolkit', version: '>= 0.1.1',
+  fallback: ['ztoolkit', 'ztoolkit_dep'],
+  default_options: ['enable_rsvg=true'])
+lv2_dep = dependency (
+  'lv2', version: '>=1.16.0', required: false)
 
 cc = meson.get_compiler ('c')
 

@@ -28,14 +28,6 @@ plugins = [
   ['VerbSP', 'ReverbPlugin', '0.1.0'],
   ]
 
-fs = import('fs')
-guile = find_program (['guile2.2', 'guile'])
-sh = find_program ('sh')
-ztoolkit_dep = dependency(
-  'ztoolkit', version: '>= 0.1.1',
-  fallback: ['ztoolkit', 'ztoolkit_dep'],
-  default_options: ['enable_rsvg=true'])
-
 if os_darwin
   libext = '.dylib'
 elif os_windows
@@ -145,8 +137,6 @@ if get_option ('plugins').contains (pl[0])
     sources: pl_config_h,
     )
 
-  lv2_dep = dependency (
-    'lv2', version: '>=1.16.0', required: false)
   if not lv2_dep.found()
     lilv_proj = subproject('lilv')
     lv2_dep = lilv_proj.get_variable('lv2_dep')
