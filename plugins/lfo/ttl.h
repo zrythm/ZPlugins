@@ -205,9 +205,9 @@ print_ttl (FILE * f)
     lv2:scalePoint [ rdfs:label \"4/1\"; rdf:value 9 ] ;\n\
     lv2:scalePoint [ rdfs:label \"8/1\"; rdf:value 10 ] ;\n\
     lv2:scalePoint [ rdfs:label \"16/1\"; rdf:value 11 ] ;\n\
-    lv2:scalePoint [ rdfs:label \"32/1\"; rdf:value 11 ] ;\n\
-    lv2:scalePoint [ rdfs:label \"64/1\"; rdf:value 11 ] ;\n\
-    lv2:scalePoint [ rdfs:label \"128/1\"; rdf:value 11 ] ;\n");
+    lv2:scalePoint [ rdfs:label \"32/1\"; rdf:value 12 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"64/1\"; rdf:value 13 ] ;\n\
+    lv2:scalePoint [ rdfs:label \"128/1\"; rdf:value 14 ] ;\n");
           defi = SYNC_1_4;
           mini = 0;
           maxi = NUM_SYNC_RATES - 1;
