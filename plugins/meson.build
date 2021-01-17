@@ -262,27 +262,29 @@ if get_option ('plugins').contains (pl[0])
     'LIBEXT': libext,
     'LV2_DIR': lv2_core_path,
     })
-  if lv2lint.found() and (os_linux or os_freebsd)
-    test (
-      'LV2 lint', lv2lint_wrap,
-      args: [ lv2lint.path () ],
-      env: test_env,
-      suite: pl[0])
-  endif
-  if lv2_validate.found() and sord_validate.found()
-    test (
-      'LV2 validate', lv2_validate_wrap,
-      args: [ lv2_validate.path() ],
-      env: test_env,
-      suite: pl[0])
-  endif
-  if carla_single.found () and not pl_str.contains ('LFO')
-    test (
-      'Carla single', carla_single_wrap,
-      args: [ carla_single.path () ],
-      env: test_env,
-      timeout: 60,
-      suite: pl[0])
+  if not os_windows
+    if lv2lint.found() and (os_linux or os_freebsd)
+      test (
+        'LV2 lint', lv2lint_wrap,
+        args: [ lv2lint.path () ],
+        env: test_env,
+        suite: pl[0])
+    endif
+    if lv2_validate.found() and sord_validate.found()
+      test (
+        'LV2 validate', lv2_validate_wrap,
+        args: [ lv2_validate.path() ],
+        env: test_env,
+        suite: pl[0])
+    endif
+    if carla_single.found () and not pl_str.contains ('LFO')
+      test (
+        'Carla single', carla_single_wrap,
+        args: [ carla_single.path () ],
+        env: test_env,
+        timeout: 60,
+        suite: pl[0])
+    endif
   endif
 endif
 endforeach
