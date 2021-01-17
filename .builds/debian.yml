@@ -15,10 +15,13 @@ sources:
 tasks:
   - setup: |
       cd zplugins
-      ../meson/meson.py build -Dlv2dir=/usr/lib/lv2
+      ../meson/meson.py build -Dlv2_core_path=/usr/lib/lv2
   - build: |
       cd zplugins
       ninja -C build
   - test: |
       cd zplugins
       ninja -C build test
+  - install: |
+      cd zplugins
+      DESTDIR=/tmp/zplugins ninja -C build install

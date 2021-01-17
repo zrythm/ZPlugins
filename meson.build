@@ -73,6 +73,7 @@ endif
 
 prefix = get_option('prefix')
 lv2dir = prefix / get_option('lv2dir')
+lv2_core_path = get_option('lv2_core_path')
 
 # cflags
 common_cflags = cc.get_supported_arguments([

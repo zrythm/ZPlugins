@@ -5,8 +5,8 @@ ZPlugins
 [![travis build status](https://img.shields.io/travis/zrythm/ZPlugins?label=travis%20build)](https://travis-ci.org/zrythm/ZPlugins)
 [![code coverage](https://img.shields.io/coveralls/github/zrythm/ZPlugins)](https://coveralls.io/github/zrythm/ZPlugins)
 
-Collection of audio DSP plugins to be bundled with the
-Zrythm DAW.
+Collection of audio DSP plugins inteded to be bundled
+with the Zrythm DAW.
 
 Plugins
 -------
@@ -30,7 +30,7 @@ Building
 Build and install all plugins
 
     meson build
-    ninja -C build
+    ninja -C build -Dlv2dir=lib/lv2
     ninja -C build install
 
 To build specific plugins only, pass their names as below

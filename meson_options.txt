@@ -20,6 +20,10 @@ option (
   description: 'Enable strict compilation flags')
 
 option (
+  'lv2_core_path', type: 'string', value: '/usr/lib/lv2',
+  description: 'Path to LV2 core spec')
+
+option (
   'lv2dir', type: 'string', value: 'lib/lv2',
   description: 'LV2 installation dir under the prefix')
 

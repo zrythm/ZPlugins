@@ -68,7 +68,7 @@ if get_option ('plugins').contains (pl[0])
   pl_minor_version = pl_version.split('.')[1]
   pl_micro_version = pl_version.split('.')[1]
 
-  pl_dir = join_paths(lv2dir, pl_str + '.lv2')
+  pl_install_dir = lv2dir / pl_str + '.lv2'
   project_uri = 'https://www.zrythm.org/plugins'
   pl_uri = project_uri + '/' + pl_str
   pl_ui_uri = pl_uri + '#UI'
@@ -117,7 +117,7 @@ if get_option ('plugins').contains (pl[0])
   config_h_data.set_quoted (
     'PLUGIN_TTL_H', join_paths (pl_lowercase, 'ttl.h'))
   config_h_data.set_quoted (
-    'INSTALL_PATH', pl_dir)
+    'INSTALL_PATH', pl_install_dir)
   if get_option('buildtype') == 'release'
     config_h_data.set ('RELEASE', 1)
   endif
@@ -165,7 +165,7 @@ if get_option ('plugins').contains (pl[0])
     include_directories: pl_inc_dirs,
     link_with: soundpipe_lib,
     install: true,
-    install_dir: pl_dir,
+    install_dir: pl_install_dir,
     c_args: [
       common_cflags,
       '-DPLUGIN_CONFIG="../' + pl_lowercase + '_config.h"',
@@ -191,7 +191,7 @@ if get_option ('plugins').contains (pl[0])
         ],
       include_directories: ui_inc_dirs,
       install: true,
-      install_dir: pl_dir,
+      install_dir: pl_install_dir,
       c_args: [
         common_cflags,
         '-DPLUGIN_CONFIG="../' + pl_lowercase + '_config.h"',
@@ -203,7 +203,7 @@ if get_option ('plugins').contains (pl[0])
   if resources_exist
     install_subdir (
       join_paths (pl_lowercase, 'resources'),
-      install_dir: pl_dir)
+      install_dir: pl_install_dir)
   endif
 
   presets_file = 'none'
@@ -224,7 +224,7 @@ if get_option ('plugins').contains (pl[0])
     )
   install_data (
     manifest_ttl,
-    install_dir: pl_dir,
+    install_dir: pl_install_dir,
     rename: 'manifest.ttl',
     )
 
@@ -250,7 +250,7 @@ if get_option ('plugins').contains (pl[0])
     command: [
       lv2_ttl_gen, '@OUTPUT@' ],
     install: true,
-    install_dir: pl_dir,
+    install_dir: pl_install_dir,
     )
 
   # test
@@ -260,7 +260,7 @@ if get_option ('plugins').contains (pl[0])
     'PL_NAME': pl_str,
     'PL_URI': pl_uri,
     'LIBEXT': libext,
-    'LV2_DIR': lv2dir,
+    'LV2_DIR': lv2_core_path,
     })
   if lv2lint.found() and (os_linux or os_freebsd)
     test (
