@@ -17,7 +17,7 @@ sources:
 tasks:
   - setup: |
       cd zplugins
-      meson build -Dlv2dir=/usr/lib/lv2
+      meson build -Dlv2dir=/usr/local/lib/lv2 -Dmake=gmake
   - build: |
       cd zplugins
       ninja -C build

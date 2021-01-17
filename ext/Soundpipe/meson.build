@@ -25,7 +25,8 @@ pre_soundpipe = custom_target (
   input: 'Makefile',
   command: [
     bash, '-c',
-    'CC=' + cc.get_id () + ' make -j1 -C ' +
+    'CC=' + cc.get_id () + ' ' +
+    get_option ('make') + ' -j1 -C ' +
     meson.current_source_dir () +
     ' && mkdir -p ' +
     meson.current_build_dir () + ' && touch @OUTPUT@',

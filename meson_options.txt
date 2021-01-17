@@ -37,3 +37,7 @@ option (
 option (
   'trial_ver', type: 'boolean', value: false,
   description: 'Build trial version with limited functionality')
+
+option (
+  'make', type: 'string', value: 'make',
+  description: 'Binary to use for GNU make')
