@@ -20,7 +20,7 @@ plugins = [
   ['Chordz', 'MIDIPlugin', '1.0.0'],
   ['CompressorSP', 'CompressorPlugin', '1.0.0'],
   ['LimiterSP', 'LimiterPlugin', '0.1.0'],
-  ['LFO', 'OscillatorPlugin', '1.0.1'],
+  ['LFO', 'OscillatorPlugin', '1.0.2'],
   ['PhaserSP', 'PhaserPlugin', '0.1.0'],
   ['PitchSP', 'PitchPlugin', '0.1.0'],
   #['Saturator', 'DistortionPlugin', '0.1.0'],
