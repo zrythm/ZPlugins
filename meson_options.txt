@@ -34,7 +34,7 @@ option (
     'Distortion',
     'EQ', 'LFO', 'LimiterSP', 'PhaserSP',
     'PitchSP', 'Saturator',
-    'VerbSP', 'Saw'
+    'VerbSP', 'Saw', 'TestPlugin',
     ],
   description: 'Plugins to build')
 

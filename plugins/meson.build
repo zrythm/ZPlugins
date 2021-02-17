@@ -26,6 +26,7 @@ plugins = [
   #['Saturator', 'DistortionPlugin', '0.1.0'],
   ['Saw', 'InstrumentPlugin', '1.0.0'],
   ['VerbSP', 'ReverbPlugin', '0.1.0'],
+  ['TestPlugin', 'MIDIPlugin', '0.1.0'],
   ]
 
 if os_darwin

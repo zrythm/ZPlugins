@@ -40,6 +40,7 @@
 #include "lv2/log/log.h"
 #include "lv2/log/logger.h"
 #include "lv2/midi/midi.h"
+#include "lv2/options/options.h"
 #include "lv2/urid/urid.h"
 #include "lv2/time/time.h"
 #include "lv2/worker/worker.h"
@@ -89,6 +90,8 @@ typedef struct PluginCommon
 
   /** Atom forge. */
   LV2_Atom_Forge  forge;
+
+  LV2_Options_Option * options;
 
   /** URIs. */
   PluginUris      uris;
@@ -155,12 +158,12 @@ map_common_uris (
  */
 static inline int
 plugin_common_instantiate (
-  PluginCommon *              pl_common,
+  PluginCommon *              self,
   const LV2_Feature * const * features,
   int                         with_worker)
 {
 #ifdef TRIAL_VER
-  pl_common->instantiation_time = clock ();
+  self->instantiation_time = clock ();
 #endif
 
 #define HAVE_FEATURE(x) \
@@ -170,36 +173,41 @@ plugin_common_instantiate (
     {
       if (HAVE_FEATURE (LV2_URID__map))
         {
-          pl_common->map =
+          self->map =
             (LV2_URID_Map*) features[i]->data;
         }
       else if (HAVE_FEATURE (LV2_LOG__log))
         {
-          pl_common->log =
+          self->log =
             (LV2_Log_Log *) features[i]->data;
+        }
+      else if (HAVE_FEATURE (LV2_OPTIONS__options))
+        {
+          self->options =
+            (LV2_Options_Option*) features[i]->data;
         }
 
       if (with_worker)
         {
           if (HAVE_FEATURE (LV2_WORKER__schedule))
             {
-              pl_common->schedule =
+              self->schedule =
                 (LV2_Worker_Schedule *) features[i]->data;
             }
         }
     }
 #undef HAVE_FEATURE
 
-  if (!pl_common->map)
+  if (!self->map)
     {
       lv2_log_error (
-        &pl_common->logger, "Missing feature urid:map\n");
+        &self->logger, "Missing feature urid:map\n");
       return -1;
     }
-  else if (with_worker && !pl_common->schedule)
+  else if (with_worker && !self->schedule)
     {
       lv2_log_error (
-        &pl_common->logger,
+        &self->logger,
         "Missing feature work:schedule\n");
       return -1;
     }
