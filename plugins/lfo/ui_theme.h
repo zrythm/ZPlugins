@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Alexandros Theodotou <alex at zrythm dot org>
+ * Copyright (C) 2020-2021 Alexandros Theodotou <alex at zrythm dot org>
  *
  * This file is part of ZLFO
  *
@@ -18,6 +18,8 @@
 #define __ZLFO_UI_THEME_H__
 
 #include PLUGIN_CONFIG
+
+#include "lv2/log/logger.h"
 
 #include <ztoolkit/ztk.h>
 
@@ -102,11 +104,13 @@ typedef struct LfoUiTheme
 
 } LfoUiTheme;
 
-static inline void
+static inline int
 zlfo_ui_theme_init (
-  LfoUiTheme * theme,
-  const char *  bundle_path)
+  LfoUiTheme *     theme,
+  LV2_Log_Logger * logger,
+  const char *     bundle_path)
 {
+
 #define SET_COLOR(cname,_hex) \
   ztk_color_parse_hex ( \
     &theme->cname, _hex); \
@@ -136,9 +140,10 @@ zlfo_ui_theme_init (
     ztk_rsvg_load_svg (abs_path); \
   if (!theme->name##_svg) \
     { \
-      ztk_error ( \
+      lv2_log_error ( \
+        logger, \
         "Failed loading SVG: %s", abs_path); \
-      exit (1); \
+      return -1; \
     }
 
   LOAD_SVG (sine);
@@ -170,6 +175,8 @@ zlfo_ui_theme_init (
   LOAD_SVG (invert);
   LOAD_SVG (shift);
   LOAD_SVG (down_arrow);
+
+  return 0;
 }
 
 /**

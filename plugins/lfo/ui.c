@@ -2505,8 +2505,15 @@ create_ui (
     WIDTH, HEIGHT);
 
   /* init the theme */
-  zlfo_ui_theme_init (
-    &self->ui_theme, self->bundle_path);
+  int ret =
+    zlfo_ui_theme_init (
+      &self->ui_theme,
+      &self->common.pl_common.logger,
+      self->bundle_path);
+  if (ret)
+    {
+      return;
+    }
 
   /** add each control */
   add_bg_widget (self);
