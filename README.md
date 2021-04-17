@@ -13,9 +13,10 @@ Plugins
 
 - **ZChordz** - plays chords using white keys
 - **ZCompressorSP** - compressor
-- **ZLimiterSP** - peak limiter
 - **ZLFO** - full-featured LFO for CV-based automation
+- **ZLimiterSP** - peak limiter
 - **ZPhaserSP** - stereo phaser
+- **ZPitchSP** - pitch shifter
 - **ZSaw** - supersaw synth with 1 parameter
 - **ZVerbSP** - reverb based on zita-rev
 
