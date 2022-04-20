@@ -36,6 +36,7 @@ option (
     'PitchSP', 'Saturator',
     'VerbSP', 'Saw', 'TestPlugin',
     ],
+  value: [ 'Chordz', 'LFO', 'Saw', ],
   description: 'Plugins to build')
 
 option (

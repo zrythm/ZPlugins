@@ -1,3 +1,11 @@
+<!--
+Copyright (C) 2020-2022 Alexandros Theodotou
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.  This file is offered as-is,
+without any warranty.
+-->
 ZPlugins
 ========
 
@@ -12,12 +20,15 @@ Plugins
 -------
 
 - **ZChordz** - plays chords using white keys
-- **ZCompressorSP** - compressor
 - **ZLFO** - full-featured LFO for CV-based automation
+- **ZSaw** - supersaw synth with 1 parameter
+
+The following plugins are deprecated and will be removed from future releases:
+
+- **ZCompressorSP** - compressor
 - **ZLimiterSP** - peak limiter
 - **ZPhaserSP** - stereo phaser
 - **ZPitchSP** - pitch shifter
-- **ZSaw** - supersaw synth with 1 parameter
 - **ZVerbSP** - reverb based on zita-rev
 
 Dependencies
@@ -40,6 +51,7 @@ To build specific plugins only, pass their names as below
 
 License
 -------
+
 ZPlugins is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
 published by the Free Software Foundation, either version 3 of the
@@ -61,11 +73,6 @@ individually.
 Some files, where specified, are licensed under
 different licenses.
 
-----
-
-Copyright (C) 2020 Alexandros Theodotou
-
-Copying and distribution of this file, with or without modification,
-are permitted in any medium without royalty provided the copyright
-notice and this notice are preserved.  This file is offered as-is,
-without any warranty.
+Zrythm and the Zrythm logo are trademarks of Alexandros Theodotou.
+See <https://git.sr.ht/~alextee/zrythm/tree/master/item/TRADEMARKS.md>
+for our trademark policy.
