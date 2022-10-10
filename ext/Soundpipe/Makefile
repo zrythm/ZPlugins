@@ -85,7 +85,8 @@ $(UTILDIR)/stretcher: util/stretcher.c | $(UTILDIR)
 	$(CC) $(CFLAGS) -L/usr/local/lib $< -L. -lsoundpipe -lsndfile -lm -o $@
 
 $(INTERMEDIATES_PREFIX)/sp_dict.lua: | $(INTERMEDIATES_PREFIX)
-	cat modules/data/*.lua > $@ || cat modules/data/*.lua > $@
+	rm -f $@
+	find modules/data -name '*.lua' -exec cat {} >> $@ \;
 
 bootstrap:
 	util/module_bootstrap.sh $(MODULE_NAME)
