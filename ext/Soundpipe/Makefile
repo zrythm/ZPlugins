@@ -57,7 +57,7 @@ endif
 	cat $(HPATHS) >> $@
 	echo "#endif" >> $@
 
-$(HDIR)/sp_base.h: h/base.h 
+$(HDIR)/sp_base.h: h/base.h
 	>$@
 	echo "#ifndef SOUNDPIPE_H" >> $@
 ifdef USE_DOUBLE
@@ -85,7 +85,7 @@ $(UTILDIR)/stretcher: util/stretcher.c | $(UTILDIR)
 	$(CC) $(CFLAGS) -L/usr/local/lib $< -L. -lsoundpipe -lsndfile -lm -o $@
 
 $(INTERMEDIATES_PREFIX)/sp_dict.lua: | $(INTERMEDIATES_PREFIX)
-	cat modules/data/*.lua > $@
+	cat modules/data/*.lua > $@ || cat modules/data/*.lua > $@
 
 bootstrap:
 	util/module_bootstrap.sh $(MODULE_NAME)
