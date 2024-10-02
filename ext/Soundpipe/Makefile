@@ -33,7 +33,7 @@ SPFLOAT=float
 endif
 
 CFLAGS += -DSP_VERSION=$(VERSION) -O3 -DSPFLOAT=${SPFLOAT} #-std=c99
-CFLAGS += -I$(INTERMEDIATES_PREFIX)/h -Ih -I/usr/local/include -fPIC
+CFLAGS += -I$(INTERMEDIATES_PREFIX)/h -Ih -I/usr/local/include -I/opt/homebrew/include -fPIC
 UTIL += $(INTERMEDIATES_PREFIX)/util/wav2smp
 
 $(INTERMEDIATES_PREFIX) \
@@ -77,12 +77,12 @@ $(INTERMEDIATES_PREFIX)/config.mk: config.def.mk | $(INTERMEDIATES_PREFIX)
 	cp $< $@
 
 $(UTILDIR)/wav2smp: util/wav2smp.c | $(UTILDIR)
-	$(CC) $(CFLAGS) -L/usr/local/lib $< -lsndfile -o $@
+	$(CC) $(CFLAGS) -L/usr/local/lib -L/opt/homebrew/lib $< -lsndfile -o $@
 
 stretcher: $(UTILDIR)/stretcher
 
 $(UTILDIR)/stretcher: util/stretcher.c | $(UTILDIR)
-	$(CC) $(CFLAGS) -L/usr/local/lib $< -L. -lsoundpipe -lsndfile -lm -o $@
+	$(CC) $(CFLAGS) -L/usr/local/lib -L/opt/homebrew/lib $< -L. -lsoundpipe -lsndfile -lm -o $@
 
 $(INTERMEDIATES_PREFIX)/sp_dict.lua: | $(INTERMEDIATES_PREFIX)
 	rm -f $@
